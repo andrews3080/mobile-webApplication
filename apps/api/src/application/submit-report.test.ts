@@ -2,6 +2,8 @@ import { describe, it, expect } from "vitest";
 import { SubmitReport } from "./submit-report";
 import type { SubmitReportInput } from "./submit-report";
 import { InMemoryReportRepository } from "../infrastructure/in-memory-report-repository";
+import { InMemoryPhotoStore } from "../infrastructure/in-memory-photo-store";
+import { InMemoryPhotoStore } from "../infrastructure/in-memory-photo-store";
 import { ReferenceCode } from "../domain/reference-code";
 import { DomainError } from "../domain/errors";
 import { InvalidRequestError } from "./errors";
@@ -24,7 +26,7 @@ function input(overrides: Partial<SubmitReportInput> = {}): SubmitReportInput {
 // Builds the use case with fakes, so no database or phone is needed
 function setup(notifier: Notifier = new RecordingNotifier()) {
   const repo = new InMemoryReportRepository();
-  const useCase = new SubmitReport(repo, new SequenceReferenceGenerator(), notifier, new FixedClock());
+  const useCase = new SubmitReport(repo, new SequenceReferenceGenerator(), notifier, new FixedClock(), new InMemoryPhotoStore());
   return { repo, useCase };
 }
 

@@ -1,5 +1,7 @@
 import "./load-env";
-import { randomBytes } from "node:crypto";
+import { createHmac, randomBytes } from "node:crypto";
+import { fileURLToPath } from "node:url";
+import type { PhotoStore } from "./application/photo-ports";
 import type { AuditLog, ReportRepository } from "./application/ports";
 import type { UserFinder } from "./application/security-ports";
 import { wire } from "./composition-root";
@@ -7,16 +9,21 @@ import type { UserAccount } from "./domain/user-account";
 import { createApp } from "./http/app";
 import { ConsoleNotifier } from "./infrastructure/console-notifier";
 import { FixedWindowRateLimiter } from "./infrastructure/fixed-window-rate-limiter";
+import { HmacUploadSigner } from "./infrastructure/hmac-upload-signer";
+import { ImageMetadataStripper } from "./infrastructure/image-metadata-stripper";
 import { InMemoryAuditLog } from "./infrastructure/in-memory-audit-log";
+import { InMemoryPhotoStore } from "./infrastructure/in-memory-photo-store";
 import { InMemoryReportRepository } from "./infrastructure/in-memory-report-repository";
 import { InMemoryUserStore } from "./infrastructure/in-memory-user-store";
 import { JwtTokenService } from "./infrastructure/jwt-token-service";
+import { LocalDiskPhotoStore } from "./infrastructure/local-disk-photo-store";
 import { migrate } from "./infrastructure/postgres/migrate";
 import { PostgresAuditLog } from "./infrastructure/postgres/postgres-audit-log";
 import { PostgresReportRepository } from "./infrastructure/postgres/postgres-report-repository";
 import { PostgresUserStore } from "./infrastructure/postgres/postgres-user-store";
 import { createPool } from "./infrastructure/postgres/pool";
 import type { Database } from "./infrastructure/postgres/pool";
+import { RandomIdGenerator } from "./infrastructure/random-id-generator";
 import { RandomReferenceGenerator } from "./infrastructure/random-reference-generator";
 import { ScryptPasswordHasher } from "./infrastructure/scrypt-password-hasher";
 import { SystemClock } from "./infrastructure/system-clock";
@@ -37,6 +44,13 @@ if (secret.length < 32) {
 
 const clock = new SystemClock();
 const hasher = new ScryptPasswordHasher();
+
+// Upload links are signed with a key derived from the main secret, so one secret still runs everything
+const uploadSecret = createHmac("sha256", secret).update("asaase-ani-upload-v1").digest("hex");
+
+// With a database we keep photos on disk (folder "uploads" in the project root). Without one, in memory.
+const uploadDir = process.env["UPLOAD_DIR"] ?? fileURLToPath(new URL("../../../uploads/", import.meta.url));
+const photos: PhotoStore = databaseUrl ? new LocalDiskPhotoStore(uploadDir) : new InMemoryPhotoStore();
 
 // Development only: one officer with a random password, printed once per start
 async function makeDevOfficer(): Promise<{ account: UserAccount; password: string }> {
@@ -98,6 +112,10 @@ const services = wire({
   refs: new RandomReferenceGenerator(),
   notifier: new ConsoleNotifier(),
   clock,
+  photos,
+  sanitiser: new ImageMetadataStripper(),
+  signer: new HmacUploadSigner(uploadSecret),
+  ids: new RandomIdGenerator(),
 });
 
 const app = createApp(services, {
@@ -105,6 +123,7 @@ const app = createApp(services, {
     submit: new FixedWindowRateLimiter(clock, 60, 10 * 60 * 1000), // 60 per 10 min per address
     track: new FixedWindowRateLimiter(clock, 30, 60 * 1000), // 30 per minute per address
     login: new FixedWindowRateLimiter(clock, 10, 15 * 60 * 1000), // 10 per 15 min per address
+    upload: new FixedWindowRateLimiter(clock, 300, 10 * 60 * 1000), // slots and uploads: up to 5 photos per report
   },
 });
 

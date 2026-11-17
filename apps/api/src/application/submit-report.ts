@@ -1,7 +1,9 @@
+import { isPhotoKey } from "../domain/image-type";
 import { Report } from "../domain/report";
 import type { Contact } from "../domain/report";
 import { Location } from "../domain/location";
 import { InvalidRequestError } from "./errors";
+import type { PhotoChecker } from "./photo-ports";
 import type { Clock, Notifier, ReferenceGenerator, ReportSubmissionStore } from "./ports";
 
 export interface SubmitReportInput {
@@ -12,7 +14,7 @@ export interface SubmitReportInput {
   area: string;
   latitude?: number;
   longitude?: number;
-  photoKeys?: string[];
+  photoKeys?: string[]; // keys returned by the upload step
   contact?: Contact;
 }
 
@@ -28,12 +30,22 @@ export class SubmitReport {
     private readonly refs: ReferenceGenerator,
     private readonly notifier: Notifier,
     private readonly clock: Clock,
+    private readonly photos: PhotoChecker,
   ) {}
 
   async execute(input: SubmitReportInput): Promise<SubmitReportResult> {
     const key = input.idempotencyKey?.trim() ?? "";
     if (key.length < 16 || key.length > 100) {
       throw new InvalidRequestError("A valid idempotency key is required");
+    }
+
+    // Every photo must be one WE stored: right format, and really uploaded
+    const photoKeys = input.photoKeys ?? [];
+    if (photoKeys.length > 0) {
+      const present = photoKeys.every(isPhotoKey) && (await this.photos.allExist(photoKeys));
+      if (!present) {
+        throw new InvalidRequestError("One or more photos were not uploaded. Upload each photo first, then use its key.");
+      }
     }
 
     // The domain validates everything and throws DomainError if anything is wrong
@@ -71,4 +83,3 @@ export class SubmitReport {
     return { reference: saved.reference.toString(), alreadyReceived: !created };
   }
 }
-

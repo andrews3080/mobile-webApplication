@@ -10,6 +10,7 @@ import { RandomReferenceGenerator } from "../random-reference-generator";
 import { ScryptPasswordHasher } from "../scrypt-password-hasher";
 import { aReport, FixedClock, LATER, RecordingNotifier } from "../../test-support/builders";
 import { PASSWORD } from "../../test-support/http-setup";
+import { makePhotoParts } from "../../test-support/photo-parts";
 import { reportRepositoryContract } from "../../test-support/report-repository.contract";
 import { reportReviewStoreContract } from "../../test-support/report-review-store.contract";
 import { migrate } from "./migrate";
@@ -194,6 +195,7 @@ if (!url) {
           tokens,
           refs: new RandomReferenceGenerator(),
           notifier: new RecordingNotifier(),
+          ...makePhotoParts(),
           clock,
         });
         const app = createApp(services, {
@@ -201,6 +203,7 @@ if (!url) {
             submit: new FixedWindowRateLimiter(clock, 100, 60_000),
             track: new FixedWindowRateLimiter(clock, 100, 60_000),
             login: new FixedWindowRateLimiter(clock, 100, 60_000),
+            upload: new FixedWindowRateLimiter(clock, 100, 60_000),
           },
           onUnexpectedError: () => {},
         });

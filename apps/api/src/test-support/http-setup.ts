@@ -8,6 +8,7 @@ import { InMemoryUserStore } from "../infrastructure/in-memory-user-store";
 import { JwtTokenService } from "../infrastructure/jwt-token-service";
 import { ScryptPasswordHasher } from "../infrastructure/scrypt-password-hasher";
 import { FixedClock, RecordingNotifier, SequenceReferenceGenerator } from "./builders";
+import { makePhotoParts } from "./photo-parts";
 
 export const PASSWORD = "correct-horse-battery-1";
 
@@ -33,6 +34,7 @@ export async function setupHttp() {
   const tokens = new JwtTokenService("test-secret-0123456789-0123456789-abcdef", 3600);
   const users = new InMemoryUserStore();
   const hash = await passwordHash();
+  const photoParts = makePhotoParts(); // in-memory photo store, real cleaner, signer, id generator
 
   users.add({ id: "officer-1", email: "officer@example.com", passwordHash: hash, role: "officer", areas: ["Sample Community"], active: true });
   users.add({ id: "admin-1", email: "admin@example.com", passwordHash: hash, role: "admin", areas: [], active: true });
@@ -48,6 +50,7 @@ export async function setupHttp() {
     refs: new SequenceReferenceGenerator(),
     notifier,
     clock,
+    ...photoParts,
   });
 
   const app = createApp(services, {
@@ -55,6 +58,7 @@ export async function setupHttp() {
       submit: new FixedWindowRateLimiter(clock, 100, 60_000),
       track: new FixedWindowRateLimiter(clock, 5, 60_000),
       login: new FixedWindowRateLimiter(clock, 5, 60_000),
+      upload: new FixedWindowRateLimiter(clock, 100, 60_000),
     },
     onUnexpectedError: () => {}, // keep test output quiet
   });
@@ -64,5 +68,5 @@ export async function setupHttp() {
     return String(response.body.token);
   }
 
-  return { app, repo, audit, notifier, tokens, loginAs };
+  return { app, repo, audit, notifier, tokens, loginAs, photos: photoParts.photos, signer: photoParts.signer };
 }

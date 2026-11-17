@@ -1,16 +1,27 @@
 import express from "express";
 import type { Request, RequestHandler, Response } from "express";
+import { InvalidRequestError } from "../application/errors";
+import { MAX_PHOTO_BYTES } from "../application/photo-rules";
 import type { RateLimiter } from "../application/security-ports";
 import type { Services } from "../composition-root";
+import { IMAGE_TYPES } from "../domain/image-type";
 import { actorOf, authenticate } from "./authenticate";
 import { errorHandler } from "./error-handler";
 import { rateLimit } from "./rate-limit";
-import { parseLoginRequest, parseStatusFilter, parseSubmitRequest, parseTextField } from "./request-parsers";
+import {
+  parseLoginRequest,
+  parseStatusFilter,
+  parseSubmitRequest,
+  parseTextField,
+  parseUploadQuery,
+  parseUploadSlotRequest,
+} from "./request-parsers";
 
 export interface Limiters {
   submit: RateLimiter;
   track: RateLimiter;
   login: RateLimiter;
+  upload: RateLimiter;
 }
 
 export interface AppOptions {
@@ -67,6 +78,46 @@ export function createApp(services: Services, options: AppOptions) {
     }),
   );
 
+  // ---------- Photo uploads (reporters, no account) ----------
+
+  // Step 1: ask for a signed, expiring upload slot
+  app.post(
+    "/api/uploads",
+    rateLimit(limiters.upload),
+    handle(async (req, res) => {
+      const { contentType, sizeBytes } = parseUploadSlotRequest(req.body);
+      const slot = await services.createUploadSlot.execute({ contentType, sizeBytes });
+      res.status(201).json({
+        key: slot.key,
+        uploadUrl: `/api/uploads/${slot.key.slice("photos/".length)}?expires=${slot.expiresAtMs}&sig=${slot.signature}`,
+        expiresAt: new Date(slot.expiresAtMs).toISOString(),
+        contentType: slot.contentType,
+        maxBytes: slot.maxBytes,
+      });
+    }),
+  );
+
+  // Step 2: send the raw photo bytes to the slot. express.raw refuses anything over the size limit (413).
+  app.put(
+    "/api/uploads/:file",
+    rateLimit(limiters.upload),
+    express.raw({ type: [...IMAGE_TYPES], limit: MAX_PHOTO_BYTES }),
+    handle(async (req, res) => {
+      const { expiresAtMs, signature } = parseUploadQuery(req.query["expires"], req.query["sig"]);
+      if (!Buffer.isBuffer(req.body)) {
+        throw new InvalidRequestError("Send the photo as raw bytes with Content-Type image/jpeg, image/png or image/webp");
+      }
+      const stored = await services.storePhoto.execute({
+        key: `photos/${param(req, "file")}`,
+        expiresAtMs,
+        signature,
+        declaredType: req.header("Content-Type")?.split(";")[0]?.trim().toLowerCase(),
+        bytes: req.body,
+      });
+      res.status(201).json(stored);
+    }),
+  );
+
   // ---------- Login ----------
 
   app.post(
@@ -98,6 +149,16 @@ export function createApp(services: Services, options: AppOptions) {
     handle(async (req, res) => {
       const report = await services.getReport.execute(actorOf(res), param(req, "code"));
       res.json(services.officerMapper.toView(report));
+    }),
+  );
+
+  app.get(
+    "/api/officer/reports/:code/photos/:file",
+    officerOnly,
+    handle(async (req, res) => {
+      const photo = await services.getPhoto.execute(actorOf(res), param(req, "code"), param(req, "file"));
+      res.setHeader("Content-Security-Policy", "default-src 'none'"); // a photo must never run anything
+      res.type(photo.contentType).send(Buffer.from(photo.bytes));
     }),
   );
 

@@ -93,3 +93,23 @@ export function parseStatusFilter(value: unknown): ReportStatus | undefined {
   if (!found) throw new InvalidRequestError("Unknown status filter");
   return found;
 }
+
+// ---------- Photo uploads ----------
+
+export function parseUploadSlotRequest(rawBody: unknown): { contentType: string; sizeBytes: number } {
+  const body = asObject(rawBody, "The request body");
+  const sizeBytes = optionalNumber(body, "sizeBytes");
+  if (sizeBytes === undefined) throw new InvalidRequestError('"sizeBytes" is required');
+  return { contentType: requiredString(body, "contentType"), sizeBytes };
+}
+
+// The upload link carries ?expires=<milliseconds>&sig=<64 hex characters>
+export function parseUploadQuery(expires: unknown, signature: unknown): { expiresAtMs: number; signature: string } {
+  if (typeof expires !== "string" || !/^\d{10,15}$/.test(expires)) {
+    throw new InvalidRequestError("The upload link is not valid");
+  }
+  if (typeof signature !== "string" || !/^[0-9a-f]{64}$/.test(signature)) {
+    throw new InvalidRequestError("The upload link is not valid");
+  }
+  return { expiresAtMs: Number(expires), signature };
+}
