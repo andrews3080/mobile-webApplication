@@ -3,7 +3,6 @@ import { SubmitReport } from "./submit-report";
 import type { SubmitReportInput } from "./submit-report";
 import { InMemoryReportRepository } from "../infrastructure/in-memory-report-repository";
 import { InMemoryPhotoStore } from "../infrastructure/in-memory-photo-store";
-import { InMemoryPhotoStore } from "../infrastructure/in-memory-photo-store";
 import { ReferenceCode } from "../domain/reference-code";
 import { DomainError } from "../domain/errors";
 import { InvalidRequestError } from "./errors";
