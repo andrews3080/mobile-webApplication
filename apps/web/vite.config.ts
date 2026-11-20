@@ -7,6 +7,7 @@ export default defineConfig({
     port: 5173,
     // In development the browser talks to Vite, and Vite forwards /api to our Express server.
     // Same address for both means no CORS setup is needed.
-    proxy: { "/api": "http://127.0.0.1:3000" },
+    // API_URL lets a second API (e.g. an in-memory one for demos) be used without editing this file
+    proxy: { "/api": process.env["API_URL"] ?? "http://127.0.0.1:3000" },
   },
 });

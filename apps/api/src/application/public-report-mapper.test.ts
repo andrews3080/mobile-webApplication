@@ -37,7 +37,7 @@ describe("PublicReportMapper", () => {
 
   it("exposes only the agreed fields (an allowlist)", () => {
     expect(Object.keys(view).sort()).toEqual(
-      ["area", "category", "photoCount", "reference", "status", "submittedAt", "timeline", "updatedAt"],
+      ["area", "category", "photoCount", "question", "reference", "status", "submittedAt", "timeline", "updatedAt"],
     );
     expect(view.area).toBe("Sample Community");
   });

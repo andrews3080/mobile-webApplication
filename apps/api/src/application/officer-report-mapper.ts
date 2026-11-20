@@ -15,6 +15,7 @@ export interface OfficerReportView {
   placeDetails: string | null;
   photoKeys: string[];
   contact: Contact | null;
+  replies: { answer: string; at: string }[]; // the reporter's answers to officers' questions
   history: {
     from: ReportStatus;
     to: ReportStatus;
@@ -39,6 +40,7 @@ export class OfficerReportMapper {
       placeDetails: report.location.placeDetails ?? null,
       photoKeys: [...report.photoKeys],
       contact: report.contact ?? null,
+      replies: report.replies.map((reply) => ({ answer: reply.answer, at: reply.at.toISOString() })),
       history: report.history.map((event) => ({
         from: event.from,
         to: event.to,

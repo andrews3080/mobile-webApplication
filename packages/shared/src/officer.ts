@@ -22,6 +22,7 @@ export interface OfficerReportView {
   photoKeys: string[];
   contact: { name?: string; phone?: string; email?: string } | null;
   history: { from: string; to: string; officerId: string; reason: string | null; at: string }[];
+  replies?: { answer: string; at: string }[]; // the reporter's answers to officers' questions
 }
 
 export type ReviewAction = "start-review" | "verify" | "reject" | "request-information" | "refer-for-action" | "close";
@@ -74,7 +75,10 @@ const ACTIONS: Record<ReviewAction, ActionInfo> = {
     action: "request-information",
     label: "Ask for more information",
     tone: "neutral",
-    text: { label: "What do you need to know?", hint: "Kept in the report history. If the reporter left contact details, use them to ask." },
+    text: {
+      label: "What do you need to know?",
+      hint: "The reporter sees this question on the tracking page and can answer there. Do not include anyone's personal details.",
+    },
   },
   "refer-for-action": {
     action: "refer-for-action",

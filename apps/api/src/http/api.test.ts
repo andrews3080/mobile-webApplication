@@ -389,3 +389,50 @@ describe("place details", () => {
     expect(res.status).toBe(400);
   });
 });
+
+describe("answering an officer's question from the tracking page", () => {
+  async function askedReport() {
+    const http = await setupHttp();
+    const { body } = await submit(http.app);
+    const token = await http.loginAs("officer@example.com");
+    await request(http.app).post(`/api/officer/reports/${body.reference}/start-review`).set(...bearer(token));
+    await request(http.app)
+      .post(`/api/officer/reports/${body.reference}/request-information`)
+      .set(...bearer(token))
+      .send({ question: "Which side of the river is the site?" });
+    return { ...http, code: body.reference as string, token };
+  }
+
+  it("shows the question on the tracking page, takes one answer and never shows the answer publicly", async () => {
+    const { app, code, token, notifier } = await askedReport();
+
+    const before = await request(app).get(`/api/track/${code}`);
+    expect(before.body.question).toMatchObject({ text: "Which side of the river is the site?", answeredAt: null });
+
+    const answered = await request(app).post(`/api/track/${code}/answer`).send({ answer: "The east bank, past Kofi's farm" });
+    expect(answered.status).toBe(200);
+    expect(answered.body.question.answeredAt).toEqual(expect.any(String));
+    expect(JSON.stringify(answered.body)).not.toContain("Kofi");
+
+    const again = await request(app).post(`/api/track/${code}/answer`).send({ answer: "Another answer" });
+    expect(again.status).toBe(422);
+
+    const officerView = await request(app).get(`/api/officer/reports/${code}`).set(...bearer(token));
+    expect(officerView.body.replies).toEqual([{ answer: "The east bank, past Kofi's farm", at: expect.any(String) }]);
+    expect(notifier.answered).toHaveLength(1);
+  });
+
+  it("refuses an answer when no question is waiting", async () => {
+    const { app } = await setupHttp();
+    const { body } = await submit(app);
+    const res = await request(app).post(`/api/track/${body.reference}/answer`).send({ answer: "Hello" });
+    expect(res.status).toBe(422);
+    expect((await request(app).get(`/api/track/${body.reference}`)).body.question).toBeNull();
+  });
+
+  it("answers 404 for an unknown or malformed code, the same as tracking", async () => {
+    const { app } = await setupHttp();
+    expect((await request(app).post("/api/track/ZZZZ-ZZZZ-ZZZZ/answer").send({ answer: "Hello" })).status).toBe(404);
+    expect((await request(app).post("/api/track/not-a-code/answer").send({ answer: "Hello" })).status).toBe(404);
+  });
+});

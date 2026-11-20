@@ -61,6 +61,9 @@ describe("SubmitReport", () => {
       notifyNewReport: async () => {
         throw new Error("push service is down");
       },
+      notifyReporterAnswered: async () => {
+        throw new Error("push service is down");
+      },
     };
     const { repo, useCase } = setup(failing);
     const result = await useCase.execute(input());

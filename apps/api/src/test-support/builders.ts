@@ -27,8 +27,12 @@ export class SequenceReferenceGenerator implements ReferenceGenerator {
 // Remembers who was notified instead of sending anything
 export class RecordingNotifier implements Notifier {
   readonly sent: Report[] = [];
+  readonly answered: Report[] = [];
   async notifyNewReport(report: Report): Promise<void> {
     this.sent.push(report);
+  }
+  async notifyReporterAnswered(report: Report): Promise<void> {
+    this.answered.push(report);
   }
 }
 

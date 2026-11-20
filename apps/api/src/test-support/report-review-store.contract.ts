@@ -43,6 +43,20 @@ export function reportReviewStoreContract(name: string, makeRepo: () => ReportRe
       expect(found?.status).toBe("under_review");
     });
 
+    it("keeps a reporter's answer when the report is replaced", async () => {
+      const repo = makeRepo();
+      const asked = aReport("AAAA-AAAA-AAAA")
+        .transitionTo("under_review", "officer-1", LATER)
+        .transitionTo("more_information_requested", "officer-1", LATER, "Which side of the river is the site?");
+      await repo.saveIfNew(asked, K1);
+      const answered = asked.answerQuestion("The east bank, past the bridge", new Date(LATER.getTime() + 60_000));
+
+      expect(await repo.replace(answered, "more_information_requested")).toBe(true);
+      const found = await repo.findByReference(ReferenceCode.parse("AAAA-AAAA-AAAA"));
+      expect(found?.replies).toEqual(answered.replies);
+      expect(found?.openQuestion()?.answeredAt).toEqual(answered.replies[0]?.at);
+    });
+
     it("refuses to replace when someone else changed the report first", async () => {
       const repo = makeRepo();
       const original = aReport("AAAA-AAAA-AAAA");

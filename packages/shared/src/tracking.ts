@@ -46,7 +46,7 @@ const STATUS_INFO: Record<string, StatusInfo> = {
   },
   more_information_requested: {
     label: "More information needed",
-    explanation: "The officer needs more details. If you gave contact details, they may get in touch with you.",
+    explanation: "An officer has a question about your report. Please answer it below.",
     tone: "attention",
   },
   verified: {

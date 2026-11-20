@@ -42,7 +42,7 @@ if (!url) {
       await migrate(pool);
     });
     beforeEach(async () => {
-      await pool.query("TRUNCATE audit_log, status_events, reports, users RESTART IDENTITY");
+      await pool.query("TRUNCATE audit_log, status_events, reporter_replies, reports, users RESTART IDENTITY");
     });
     afterAll(async () => {
       await pool.end();

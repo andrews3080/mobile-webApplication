@@ -805,3 +805,50 @@ a {
   color: var(--muted);
   font-size: 0.95rem;
 }
+
+/* ---------- An officer's question on the tracking page ---------- */
+
+.question {
+  background: var(--warn-tint);
+  border: 2px solid var(--warn-line);
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  margin-bottom: 1.1rem;
+}
+
+.question h3 {
+  margin: 0 0 0.4rem;
+  font-size: 1.1rem;
+}
+
+.question-text {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  background: var(--card);
+  border-left: 4px solid var(--warn-line);
+  border-radius: 6px;
+  font-size: 1.05rem;
+  overflow-wrap: anywhere;
+}
+
+.question .note {
+  margin: 0.35rem 0 0.75rem;
+  font-size: 0.92rem;
+}
+
+.question textarea {
+  background: #fff;
+}
+
+.question .success {
+  margin: 0;
+  color: var(--brand-dark);
+  background: var(--brand-tint);
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+  font-weight: 600;
+}
+
+.question .error {
+  margin-top: 0.75rem;
+}

@@ -267,6 +267,19 @@ export function ReportDetailScreen({ api, token, code, onBack, onSessionEnded }:
           )}
         </Card>
 
+        {report.replies && report.replies.length > 0 ? (
+          <Card title="Reporter's answers">
+            {[...report.replies].reverse().map((reply) => (
+              <View key={reply.at} style={styles.event}>
+                <View style={styles.flex}>
+                  <Text style={styles.body}>“{reply.answer}”</Text>
+                  <Text style={styles.muted}>Answered {formatDate(reply.at)}</Text>
+                </View>
+              </View>
+            ))}
+          </Card>
+        ) : null}
+
         <Card title="History">
           {history.map((event, index) => (
             <View key={`${event.to}-${event.at}`} style={styles.event}>

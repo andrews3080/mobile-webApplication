@@ -39,6 +39,21 @@ export interface NewReportInput {
 }
 
 // The saved form of a report, as a database adapter reads it back
+// An anonymous reporter's answer to an officer's question, given on the tracking page
+export interface ReporterReply {
+  answer: string;
+  at: Date;
+}
+
+export const MIN_ANSWER = 2;
+export const MAX_ANSWER = 1000;
+
+export interface OpenQuestion {
+  question: string;
+  askedAt: Date;
+  answeredAt: Date | undefined;
+}
+
 export interface ReportSnapshot {
   reference: string;
   description: string;
@@ -49,6 +64,7 @@ export interface ReportSnapshot {
   latitude?: number;
   longitude?: number;
   placeDetails?: string;
+  replies?: ReporterReply[];
   photoKeys: string[];
   contact?: Contact;
   status: ReportStatus;
@@ -71,6 +87,7 @@ export class Report {
     readonly status: ReportStatus,
     readonly createdAt: Date,
     readonly history: readonly StatusEvent[],
+    readonly replies: readonly ReporterReply[],
   ) {}
 
   // "now" is passed in, never read from the system clock. This keeps the domain testable.
@@ -112,6 +129,7 @@ export class Report {
       "received", // every report starts here
       now,
       [],
+      [],
     );
   }
 
@@ -137,6 +155,7 @@ export class Report {
       snapshot.status,
       snapshot.createdAt,
       [...snapshot.history],
+      [...(snapshot.replies ?? [])],
     );
   }
   // Reports are immutable: a status change returns a NEW Report and leaves this one untouched
@@ -165,6 +184,40 @@ export class Report {
       next,
       this.createdAt,
       [...this.history, event],
+      this.replies,
+    );
+  }
+
+  // The officer's latest question, while the report is waiting for more information. Null otherwise.
+  openQuestion(): OpenQuestion | null {
+    if (this.status !== "more_information_requested") return null;
+    const asked = [...this.history].reverse().find((event) => event.to === "more_information_requested");
+    if (!asked?.reason) return null;
+    const reply = this.replies.find((r) => r.at.getTime() >= asked.at.getTime());
+    return { question: asked.reason, askedAt: asked.at, answeredAt: reply?.at };
+  }
+
+  // The reporter answers from the tracking page. One answer per question; the status does not change,
+  // an officer resumes the review when ready.
+  answerQuestion(answer: string, at: Date): Report {
+    const open = this.openQuestion();
+    if (!open) throw new DomainError("There is no question waiting for an answer on this report");
+    if (open.answeredAt) throw new DomainError("This question has already been answered");
+    const clean = answer.trim();
+    if (clean.length < MIN_ANSWER) throw new DomainError("Please write an answer");
+    if (clean.length > MAX_ANSWER) throw new DomainError(`Please keep the answer under ${MAX_ANSWER} characters`);
+    return new Report(
+      this.reference,
+      this.description,
+      this.category,
+      this.observedAt,
+      this.location,
+      this.photoKeys,
+      this.contact,
+      this.status,
+      this.createdAt,
+      this.history,
+      [...this.replies, { answer: clean, at }],
     );
   }
 

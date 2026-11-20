@@ -7,4 +7,8 @@ export class ConsoleNotifier implements Notifier {
   async notifyNewReport(report: Report): Promise<void> {
     console.log(`[notify] new report ${report.reference.toString()} in ${report.location.area}`);
   }
+
+  async notifyReporterAnswered(report: Report): Promise<void> {
+    console.log(`[notify] reporter answered on ${report.reference.toString()} in ${report.location.area}`);
+  }
 }

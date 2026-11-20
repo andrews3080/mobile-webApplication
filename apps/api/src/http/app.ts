@@ -99,6 +99,16 @@ export function createApp(services: Services, options: AppOptions) {
     }),
   );
 
+  // The reporter answers an officer's question. Same rate limit as tracking: the code is the only key.
+  app.post(
+    "/api/track/:code/answer",
+    rateLimit(limiters.track),
+    handle(async (req, res) => {
+      const answer = parseTextField(req.body, "answer");
+      res.json(await services.answerQuestion.execute(param(req, "code"), answer));
+    }),
+  );
+
   // ---------- Photo uploads (reporters, no account) ----------
 
   // Step 1: ask for a signed, expiring upload slot

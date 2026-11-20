@@ -32,6 +32,7 @@ export interface PublicReportView {
   updatedAt: string;
   photoCount: number;
   timeline: { status: string; at: string }[];
+  question: { text: string; askedAt: string; answeredAt: string | null } | null; // an officer's open question
 }
 
 // PORTS: what the logic needs from the outside world. Small, one per job (Interface Segregation).
@@ -53,6 +54,7 @@ export interface ReportSubmitApi {
 
 export interface TrackApi {
   track(code: string): Promise<PublicReportView>;
+  answer(code: string, answer: string): Promise<PublicReportView>; // reply to the officer's open question
 }
 
 export interface Clock {

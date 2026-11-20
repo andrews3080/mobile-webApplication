@@ -82,3 +82,62 @@ describe("TrackPage", () => {
     expect((await screen.findAllByText("on hold")).length).toBeGreaterThan(0);
   });
 });
+
+describe("answering an officer's question", () => {
+  const asked = () =>
+    new FakeTrackApi(
+      aPublicReport({
+        status: "more_information_requested",
+        question: { text: "Which side of the river is the site?", askedAt: "2026-11-15T10:00:00.000Z", answeredAt: null },
+      }),
+    );
+
+  it("shows the question and sends the answer, then thanks the reporter", async () => {
+    const tracking = asked();
+    const { user, codeInput, check } = setup(tracking);
+    await user.type(codeInput, "ABCD-EFGH-JKMN");
+    await check();
+
+    expect(await screen.findByText("Which side of the river is the site?")).toBeDefined();
+    expect(screen.getByText("An officer has a question about your report. Please answer it below.")).toBeDefined();
+
+    await user.type(screen.getByLabelText("Your answer"), "  The east bank, past the bridge  ");
+    await user.click(screen.getByRole("button", { name: "Send answer" }));
+
+    expect((await screen.findByRole("status")).textContent).toContain("Thank you. Your answer was sent");
+    expect(tracking.answers).toEqual([{ code: "ABCD-EFGH-JKMN", answer: "The east bank, past the bridge" }]);
+    expect(screen.queryByLabelText("Your answer")).toBeNull();
+    expect(screen.getByText("You answered the officer's question. An officer will continue checking your report.")).toBeDefined();
+    expect(screen.queryByText(/Please answer it below/)).toBeNull();
+  });
+
+  it("asks for an answer before sending", async () => {
+    const tracking = asked();
+    const { user, codeInput, check } = setup(tracking);
+    await user.type(codeInput, "ABCD-EFGH-JKMN");
+    await check();
+    await user.click(await screen.findByRole("button", { name: "Send answer" }));
+    expect(screen.getByText("Please write your answer.")).toBeDefined();
+    expect(tracking.answers).toEqual([]);
+  });
+
+  it("keeps the typed answer when the connection fails", async () => {
+    const tracking = asked();
+    const { user, codeInput, check } = setup(tracking);
+    await user.type(codeInput, "ABCD-EFGH-JKMN");
+    await check();
+    await user.type(await screen.findByLabelText("Your answer"), "The east bank");
+    tracking.failure = networkError();
+    await user.click(screen.getByRole("button", { name: "Send answer" }));
+    expect((await screen.findByRole("alert")).textContent).toContain("Your answer is still here");
+    expect((screen.getByLabelText("Your answer") as HTMLTextAreaElement).value).toBe("The east bank");
+  });
+
+  it("shows no question box when nothing was asked", async () => {
+    const { user, codeInput, check } = setup();
+    await user.type(codeInput, "ABCD-EFGH-JKMN");
+    await check();
+    await screen.findByRole("heading", { name: "Report ABCD-EFGH-JKMN" });
+    expect(screen.queryByText("An officer asked you")).toBeNull();
+  });
+});

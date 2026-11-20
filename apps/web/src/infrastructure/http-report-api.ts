@@ -70,4 +70,15 @@ export class HttpReportApi implements PhotoUploadApi, ReportSubmitApi, TrackApi 
     if (typeof body["reference"] !== "string" || typeof body["status"] !== "string") throw unreadable();
     return body as unknown as PublicReportView;
   }
+
+  async answer(code: string, answer: string): Promise<PublicReportView> {
+    const response = await this.send(`/api/track/${encodeURIComponent(code)}/answer`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ answer }),
+    });
+    const body = await readObject(response);
+    if (typeof body["reference"] !== "string" || typeof body["status"] !== "string") throw unreadable();
+    return body as unknown as PublicReportView;
+  }
 }

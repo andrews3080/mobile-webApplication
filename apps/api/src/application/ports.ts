@@ -31,6 +31,7 @@ export interface ReferenceGenerator {
 
 export interface Notifier {
   notifyNewReport(report: Report): Promise<void>;
+  notifyReporterAnswered(report: Report): Promise<void>;
 }
 
 export interface Clock {

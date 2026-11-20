@@ -11,6 +11,15 @@ export interface PublicReportView {
   updatedAt: string;
   photoCount: number;
   timeline: { status: ReportStatus; at: string }[];
+  // The officer's question while it waits for the reporter. Officers write it knowing the reporter
+  // reads it here. The reporter's answer itself is never shown publicly, only that it was sent.
+  question: { text: string; askedAt: string; answeredAt: string | null } | null;
+}
+
+function openQuestionView(report: Report): PublicReportView["question"] {
+  const open = report.openQuestion();
+  if (!open) return null;
+  return { text: open.question, askedAt: open.askedAt.toISOString(), answeredAt: open.answeredAt?.toISOString() ?? null };
 }
 
 // Builds the view field by field. A new Report field can NEVER leak by accident,
@@ -32,6 +41,7 @@ export class PublicReportMapper {
       updatedAt: last ? last.at : report.createdAt.toISOString(),
       photoCount: report.photoKeys.length,
       timeline, // statuses and times only, no officer ids and no reasons
+      question: openQuestionView(report),
     };
   }
 }

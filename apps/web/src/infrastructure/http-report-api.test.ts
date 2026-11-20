@@ -100,3 +100,17 @@ describe("HttpReportApi", () => {
     expect(calls[0]?.url).toBe("http://api.test/api/track/abcd%20efgh%2Fjkmn");
   });
 });
+
+describe("HttpReportApi answers", () => {
+  it("posts the answer to the report's tracking address", async () => {
+    const calls: { url: string; init: RequestInit }[] = [];
+    const api = new HttpReportApi("", async (url, init) => {
+      calls.push({ url, init: init ?? {} });
+      return new Response(JSON.stringify({ reference: "ABCD-EFGH-JKMN", status: "more_information_requested" }), { status: 200 });
+    });
+    await api.answer("ABCD-EFGH-JKMN", "The east bank");
+    expect(calls[0]?.url).toBe("/api/track/ABCD-EFGH-JKMN/answer");
+    expect(calls[0]?.init.method).toBe("POST");
+    expect(JSON.parse(String(calls[0]?.init.body))).toEqual({ answer: "The east bank" });
+  });
+});

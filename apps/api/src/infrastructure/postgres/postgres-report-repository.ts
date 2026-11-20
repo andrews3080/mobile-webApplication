@@ -2,7 +2,7 @@ import type { PoolClient } from "pg";
 import { normaliseArea } from "../../domain/area";
 import type { ReferenceCode } from "../../domain/reference-code";
 import { Report } from "../../domain/report";
-import type { Contact, StatusEvent } from "../../domain/report";
+import type { Contact, ReporterReply, StatusEvent } from "../../domain/report";
 import type { ReportStatus } from "../../domain/status";
 import type { ReportRepository } from "../../application/ports";
 import type { Database } from "./pool";
@@ -49,6 +49,18 @@ async function insertEvents(client: PoolClient, report: Report): Promise<void> {
   }
 }
 
+async function insertReplies(client: PoolClient, report: Report): Promise<void> {
+  const reference = report.reference.toString();
+  for (const [index, reply] of report.replies.entries()) {
+    await client.query("INSERT INTO reporter_replies (reference, seq, answer, at) VALUES ($1, $2, $3, $4)", [
+      reference,
+      index,
+      reply.answer,
+      reply.at,
+    ]);
+  }
+}
+
 // Stores reports in PostgreSQL. Must behave exactly like InMemoryReportRepository,
 // and the shared contract tests prove it.
 export class PostgresReportRepository implements ReportRepository {
@@ -78,7 +90,10 @@ export class PostgresReportRepository implements ReportRepository {
         report.location.placeDetails ?? null,
       ]);
       created = (inserted.rowCount ?? 0) > 0;
-      if (created) await insertEvents(client, report);
+      if (created) {
+        await insertEvents(client, report);
+        await insertReplies(client, report);
+      }
       await client.query("COMMIT");
     } catch (error) {
       await client.query("ROLLBACK").catch(() => undefined);
@@ -129,6 +144,8 @@ export class PostgresReportRepository implements ReportRepository {
       // We now hold the row lock, so nobody else can change the history meanwhile
       await client.query("DELETE FROM status_events WHERE reference = $1", [reference]);
       await insertEvents(client, report);
+      await client.query("DELETE FROM reporter_replies WHERE reference = $1", [reference]);
+      await insertReplies(client, report);
       await client.query("COMMIT");
       return true;
     } catch (error) {
@@ -148,6 +165,17 @@ export class PostgresReportRepository implements ReportRepository {
        FROM status_events WHERE reference = ANY($1::text[]) ORDER BY reference, seq`,
       [rows.map((row) => row.reference)],
     );
+
+    const replies = await this.pool.query<{ reference: string; answer: string; at: Date }>(
+      "SELECT reference, answer, at FROM reporter_replies WHERE reference = ANY($1::text[]) ORDER BY reference, seq",
+      [rows.map((row) => row.reference)],
+    );
+    const repliesByReference = new Map<string, ReporterReply[]>();
+    for (const reply of replies.rows) {
+      const list = repliesByReference.get(reply.reference) ?? [];
+      list.push({ answer: reply.answer, at: reply.at });
+      repliesByReference.set(reply.reference, list);
+    }
 
     const byReference = new Map<string, StatusEvent[]>();
     for (const event of events.rows) {
@@ -177,6 +205,7 @@ export class PostgresReportRepository implements ReportRepository {
         contact: row.contact ?? undefined,
         status: row.status,
         history: byReference.get(row.reference) ?? [],
+        replies: repliesByReference.get(row.reference) ?? [],
       }),
     );
   }

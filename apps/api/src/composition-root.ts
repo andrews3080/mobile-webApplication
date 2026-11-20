@@ -9,6 +9,7 @@ import { OfficerReportMapper } from "./application/officer-report-mapper";
 import type { IdGenerator, PhotoSanitiser, PhotoStore, UploadSigner } from "./application/photo-ports";
 import type { AuditLog, Clock, Notifier, ReferenceGenerator, ReportRepository } from "./application/ports";
 import { PublicReportMapper } from "./application/public-report-mapper";
+import { AnswerQuestion } from "./application/answer-question";
 import { CloseReport, ReferForAction, RejectReport, RequestMoreInformation, StartReview, VerifyReport } from "./application/review-actions";
 import { ReviewWorkflow } from "./application/review-workflow";
 import type { PasswordHasher, TokenService, UserFinder } from "./application/security-ports";
@@ -40,6 +41,7 @@ export function wire(parts: Parts) {
   return {
     submitReport: new SubmitReport(parts.repo, parts.refs, parts.notifier, parts.clock, parts.photos),
     trackReport: new TrackReport(parts.repo, new PublicReportMapper()),
+    answerQuestion: new AnswerQuestion(parts.repo, new PublicReportMapper(), parts.notifier, parts.clock),
     createUploadSlot: new CreateUploadSlot(parts.ids, parts.signer, parts.clock),
     storePhoto: new StorePhoto(parts.signer, parts.sanitiser, parts.photos, parts.clock),
     login: new LoginOfficer(parts.users, parts.hasher, parts.tokens),

@@ -145,6 +145,7 @@ export function aPublicReport(overrides: Partial<PublicReportView> = {}): Public
     submittedAt: "2026-11-14T08:00:00.000Z",
     updatedAt: "2026-11-15T09:30:00.000Z",
     photoCount: 2,
+    question: null,
     timeline: [
       { status: "received", at: "2026-11-14T08:00:00.000Z" },
       { status: "under_review", at: "2026-11-15T09:30:00.000Z" },
@@ -158,12 +159,23 @@ export class FakeTrackApi implements TrackApi {
   readonly asked: string[] = [];
   failure?: Error;
 
-  constructor(private readonly report: PublicReportView = aPublicReport()) {}
+  constructor(private report: PublicReportView = aPublicReport()) {}
 
   async track(code: string): Promise<PublicReportView> {
     this.asked.push(code);
     if (this.failure) throw this.failure;
     if (code !== this.report.reference) throw new ApiError("rejected", "Not found", 404);
+    return this.report;
+  }
+
+  readonly answers: { code: string; answer: string }[] = [];
+
+  async answer(code: string, answer: string): Promise<PublicReportView> {
+    this.answers.push({ code, answer });
+    if (this.failure) throw this.failure;
+    if (!this.report.question) throw new ApiError("rejected", "There is no question waiting for an answer on this report", 422);
+    if (this.report.question.answeredAt) throw new ApiError("rejected", "This question has already been answered", 422);
+    this.report = { ...this.report, question: { ...this.report.question, answeredAt: "2026-11-15T11:00:00.000Z" } };
     return this.report;
   }
 }

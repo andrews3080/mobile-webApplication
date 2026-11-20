@@ -3,6 +3,7 @@ import type { FormEvent } from "react";
 import { ApiError } from "../core/errors";
 import type { PublicReportView, TrackApi } from "../core/ports";
 import { categoryLabel, checkTrackingCode, describeStatus } from "@asaase-ani/shared";
+import { AnswerBox } from "./AnswerBox";
 import { Icon } from "./Icon";
 
 interface Props {
@@ -66,6 +67,10 @@ export function TrackPage({ tracking }: Props) {
   }
 
   const status = report ? describeStatus(report.status) : null;
+  // Once the reporter has answered, "please answer below" would be wrong
+  const explanation = report?.question?.answeredAt
+    ? "You answered the officer's question. An officer will continue checking your report."
+    : status?.explanation;
   const timeline = report ? [...report.timeline].reverse() : []; // newest first
 
   return (
@@ -122,9 +127,11 @@ export function TrackPage({ tracking }: Props) {
             Report {report.reference}
           </h2>
 
+          <AnswerBox tracking={tracking} report={report} onUpdated={setReport} />
+
           <div className={`status status-${status.tone}`}>
             <span className="status-label">{status.label}</span>
-            {status.explanation && <p>{status.explanation}</p>}
+            {explanation && <p>{explanation}</p>}
           </div>
 
           <dl className="facts">
