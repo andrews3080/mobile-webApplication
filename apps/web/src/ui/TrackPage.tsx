@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { ApiError } from "../core/errors";
 import type { PublicReportView, TrackApi } from "../core/ports";
-import { categoryLabel, checkTrackingCode, describeStatus } from "../core/tracking";
+import { categoryLabel, checkTrackingCode, describeStatus } from "@asaase-ani/shared";
 import { Icon } from "./Icon";
 
 interface Props {

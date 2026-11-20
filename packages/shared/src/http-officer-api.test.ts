@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { HttpOfficerApi } from "./http-officer-api";
-import type { FetchFn } from "./http-report-api";
+import type { FetchFn } from "./http";
 
 function respond(status: number, body: unknown): Response {
   return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });

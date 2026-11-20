@@ -1,7 +1,7 @@
 import { BrowserIdGenerator, RealSleeper } from "../infrastructure/browser-utils";
 import { BrowserLocationFinder } from "../infrastructure/browser-location-finder";
 import { CanvasImageCompressor } from "../infrastructure/canvas-image-compressor";
-import { HttpOfficerApi } from "../infrastructure/http-officer-api";
+import { HttpOfficerApi } from "@asaase-ani/shared";
 import { HttpReportApi } from "../infrastructure/http-report-api";
 import { IndexedDbDraftStore } from "../infrastructure/indexed-db-draft-store";
 import { SessionTokenStore } from "../infrastructure/token-stores";

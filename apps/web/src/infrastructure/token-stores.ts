@@ -1,4 +1,4 @@
-import type { TokenStore } from "../core/officer";
+import type { TokenStore } from "@asaase-ani/shared";
 
 const KEY = "asaase-ani.officer-token";
 

@@ -16,7 +16,7 @@ import type {
   UploadSlot,
 } from "../core/ports";
 import type { DraftPhoto, ReportDraft } from "../core/report-draft";
-import type { OfficerApi, OfficerReportSummary, OfficerReportView, ReviewAction, ReviewResult } from "../core/officer";
+import type { OfficerApi, OfficerReportSummary, OfficerReportView, ReviewAction, ReviewResult } from "@asaase-ani/shared";
 
 export const NOW = new Date("2026-11-14T10:00:00Z");
 

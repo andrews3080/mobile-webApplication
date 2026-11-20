@@ -26,7 +26,7 @@ export type TestApp = ReturnType<typeof createApp>;
 //   admin@example.com     administrator
 //   disabled@example.com  officer whose account is disabled
 //   far@example.com       officer assigned to "Other District"
-export async function setupHttp() {
+export async function setupHttp(options: { corsOrigins?: string[] } = {}) {
   const clock = new FixedClock(); // time stands still, so rate-limit windows never expire mid-test
   const repo = new InMemoryReportRepository();
   const audit = new InMemoryAuditLog();
@@ -61,6 +61,7 @@ export async function setupHttp() {
       upload: new FixedWindowRateLimiter(clock, 100, 60_000),
     },
     onUnexpectedError: () => {}, // keep test output quiet
+    corsOrigins: options.corsOrigins,
   });
 
   async function loginAs(email: string): Promise<string> {

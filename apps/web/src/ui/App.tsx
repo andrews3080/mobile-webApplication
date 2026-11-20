@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { OfficerApi, TokenStore } from "../core/officer";
+import type { OfficerApi, TokenStore } from "@asaase-ani/shared";
 import type { TrackApi } from "../core/ports";
 import { Icon } from "./Icon";
 import { OfficerArea } from "./officer/OfficerArea";

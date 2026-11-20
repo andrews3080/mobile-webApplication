@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
-import type { OfficerApi, OfficerReportSummary } from "../../core/officer";
-import { categoryLabel, describeStatus } from "../../core/tracking";
-import { formatDate } from "../format";
+import type { OfficerApi, OfficerReportSummary } from "@asaase-ani/shared";
+import { categoryLabel, describeStatus } from "@asaase-ani/shared";
+import { formatDate } from "@asaase-ani/shared";
 import { StatusBadge } from "../StatusBadge";
-import { isSessionEnded, officerErrorMessage } from "./officer-errors";
+import { isSessionEnded, officerErrorMessage } from "@asaase-ani/shared";
 
 interface Props {
   api: OfficerApi;

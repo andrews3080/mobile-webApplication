@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
-import { actionsFor, checkReason } from "../../core/officer";
-import type { ActionInfo, OfficerApi, OfficerReportView } from "../../core/officer";
-import { categoryLabel, describeStatus } from "../../core/tracking";
-import { formatDate } from "../format";
+import { actionsFor, checkReason } from "@asaase-ani/shared";
+import type { ActionInfo, OfficerApi, OfficerReportView } from "@asaase-ani/shared";
+import { categoryLabel, describeStatus } from "@asaase-ani/shared";
+import { formatDate } from "@asaase-ani/shared";
 import { StatusBadge } from "../StatusBadge";
 import { AuthPhoto } from "./AuthPhoto";
-import { isConflict, isSessionEnded, officerErrorMessage } from "./officer-errors";
+import { isConflict, isSessionEnded, officerErrorMessage } from "@asaase-ani/shared";
 
 interface Props {
   api: OfficerApi;

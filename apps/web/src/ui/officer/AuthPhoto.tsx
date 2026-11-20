@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { OfficerApi } from "../../core/officer";
+import type { OfficerApi } from "@asaase-ani/shared";
 
 interface Props {
   api: OfficerApi;

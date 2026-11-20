@@ -1,4 +1,4 @@
-import { REPORT_CATEGORIES } from "./report-draft";
+import { REPORT_CATEGORIES } from "./categories";
 
 // Mirrors the API's ReferenceCode rules (apps/api domain/reference-code.ts). The server checks again.
 const ALPHABET = "0123456789ABCDEFGHJKMNPQRSTVWXYZ"; // no I, L, O or U

@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import type { OfficerApi, TokenStore } from "../../core/officer";
+import type { OfficerApi, TokenStore } from "@asaase-ani/shared";
 import { LoginForm } from "./LoginForm";
 import { ReportDetail } from "./ReportDetail";
 import { ReportList } from "./ReportList";

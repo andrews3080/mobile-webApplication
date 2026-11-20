@@ -118,7 +118,14 @@ const services = wire({
   ids: new RandomIdGenerator(),
 });
 
+const corsOrigins = (process.env["CORS_ORIGINS"] ?? "")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter((origin) => origin.length > 0);
+if (corsOrigins.length > 0) console.log(`Allowing browser calls from: ${corsOrigins.join(", ")}`);
+
 const app = createApp(services, {
+  corsOrigins,
   limiters: {
     submit: new FixedWindowRateLimiter(clock, 60, 10 * 60 * 1000), // 60 per 10 min per address
     track: new FixedWindowRateLimiter(clock, 30, 60 * 1000), // 30 per minute per address

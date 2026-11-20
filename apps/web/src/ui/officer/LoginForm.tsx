@@ -1,8 +1,8 @@
 import { useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { ApiError } from "../../core/errors";
-import type { OfficerApi } from "../../core/officer";
-import { officerErrorMessage } from "./officer-errors";
+import type { OfficerApi } from "@asaase-ani/shared";
+import { officerErrorMessage } from "@asaase-ani/shared";
 
 interface Props {
   api: OfficerApi;

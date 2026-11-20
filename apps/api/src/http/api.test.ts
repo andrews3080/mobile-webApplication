@@ -343,3 +343,27 @@ describe("passing on and closing over HTTP", () => {
     expect(res.status).toBe(401);
   });
 });
+
+describe("cross-origin browser calls", () => {
+  it("are refused by default: no CORS headers at all", async () => {
+    const { app } = await setupHttp();
+    const res = await request(app).get("/api/health").set("Origin", "http://localhost:8081");
+    expect(res.headers["access-control-allow-origin"]).toBeUndefined();
+  });
+
+  it("are allowed only for listed origins, including the preflight", async () => {
+    const { app } = await setupHttp({ corsOrigins: ["http://localhost:8081"] });
+
+    const preflight = await request(app)
+      .options("/api/officer/reports")
+      .set("Origin", "http://localhost:8081")
+      .set("Access-Control-Request-Method", "GET")
+      .set("Access-Control-Request-Headers", "authorization");
+    expect(preflight.status).toBe(204);
+    expect(preflight.headers["access-control-allow-origin"]).toBe("http://localhost:8081");
+    expect(preflight.headers["access-control-allow-headers"]).toContain("Authorization");
+
+    const other = await request(app).get("/api/health").set("Origin", "https://evil.example");
+    expect(other.headers["access-control-allow-origin"]).toBeUndefined();
+  });
+});

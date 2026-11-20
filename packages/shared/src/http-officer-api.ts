@@ -1,8 +1,8 @@
-import { ApiError } from "../core/errors";
-import type { OfficerApi, OfficerReportSummary, OfficerReportView, ReviewAction, ReviewResult } from "../core/officer";
-import { photoFileName } from "../core/officer";
-import { defaultFetch, readObject, toApiError } from "./http-report-api";
-import type { FetchFn } from "./http-report-api";
+import { ApiError } from "./api-error";
+import type { OfficerApi, OfficerReportSummary, OfficerReportView, ReviewAction, ReviewResult } from "./officer";
+import { photoFileName } from "./officer";
+import { defaultFetch, readObject, toApiError, unreadable } from "./http";
+import type { FetchFn } from "./http";
 
 // Which body field each review action sends its text in (apps/api http/app.ts)
 const TEXT_FIELD: Partial<Record<ReviewAction, string>> = {
@@ -15,9 +15,6 @@ const TEXT_FIELD: Partial<Record<ReviewAction, string>> = {
 
 const reportPath = (code: string) => `/api/officer/reports/${encodeURIComponent(code)}`;
 
-function unreadable(): ApiError {
-  return new ApiError("server", "The server sent an answer we could not read");
-}
 
 // Talks to the officer endpoints. Every call except login carries "Authorization: Bearer <token>".
 export class HttpOfficerApi implements OfficerApi {

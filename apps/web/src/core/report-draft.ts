@@ -1,12 +1,5 @@
-// Placeholder list that mirrors the API's categories, with plain-language labels (Milestone 1: usability).
-// If the API list changes, change this one too. Later both can come from packages/shared.
-export const REPORT_CATEGORIES = [
-  { value: "excavation_site", label: "Digging or excavation site" },
-  { value: "river_pollution", label: "Polluted river or stream" },
-  { value: "forest_clearing", label: "Cleared forest or farmland" },
-  { value: "machinery_or_equipment", label: "Machinery or equipment" },
-  { value: "other", label: "Something else" },
-] as const;
+// Categories are shared with the mobile app
+export { REPORT_CATEGORIES } from "@asaase-ani/shared";
 
 export const MAX_PHOTOS = 5;
 

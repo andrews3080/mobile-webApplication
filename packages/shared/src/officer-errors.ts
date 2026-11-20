@@ -1,4 +1,4 @@
-import { ApiError } from "../../core/errors";
+import { ApiError } from "./api-error";
 
 // 401: the session expired or was never valid. The officer area sends the officer back to the login screen.
 export function isSessionEnded(error: unknown): boolean {

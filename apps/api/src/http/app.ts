@@ -27,6 +27,9 @@ export interface Limiters {
 
 export interface AppOptions {
   limiters: Limiters;
+  // Browser origins allowed to call the API from another address (e.g. the mobile app preview on :8081).
+  // Empty by default. The real phone app does not need this: CORS is a browser rule only.
+  corsOrigins?: readonly string[];
   onUnexpectedError?: (error: unknown) => void;
 }
 
@@ -48,6 +51,23 @@ export function createApp(services: Services, options: AppOptions) {
   const app = express();
 
   app.disable("x-powered-by");
+
+  const corsOrigins = new Set(options.corsOrigins ?? []);
+  app.use((req, res, next) => {
+    const origin = req.header("Origin");
+    if (origin && corsOrigins.has(origin)) {
+      res.setHeader("Access-Control-Allow-Origin", origin);
+      res.setHeader("Vary", "Origin");
+      res.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type, Idempotency-Key");
+      res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT");
+      res.setHeader("Access-Control-Max-Age", "600");
+      if (req.method === "OPTIONS") {
+        res.status(204).end();
+        return;
+      }
+    }
+    next();
+  });
   app.use(express.json({ limit: "100kb" }));
   app.use((_req, res, next) => {
     res.setHeader("X-Content-Type-Options", "nosniff");

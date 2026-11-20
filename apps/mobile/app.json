@@ -1,0 +1,22 @@
+{
+  "expo": {
+    "name": "Asaase Ani Officers",
+    "slug": "asaase-ani-officers",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "primaryColor": "#1f6b45",
+    "backgroundColor": "#f2f5f3",
+    "android": {
+      "package": "gh.edu.ug.asaaseani.officer",
+      "softwareKeyboardLayoutMode": "pan"
+    },
+    "ios": {
+      "bundleIdentifier": "gh.edu.ug.asaaseani.officer"
+    },
+    "plugins": [
+      "expo-secure-store",
+      "expo-status-bar"
+    ]
+  }
+}
