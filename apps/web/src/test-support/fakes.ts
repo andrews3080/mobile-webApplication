@@ -7,6 +7,8 @@ import type {
   MapPosition,
   PhotoUploadApi,
   PreparedImage,
+  PublicReportView,
+  TrackApi,
   ReportSubmitApi,
   Sleeper,
   SubmitReceipt,
@@ -129,5 +131,37 @@ export class FakeLocationFinder implements LocationFinder {
   async current(): Promise<MapPosition> {
     if (!this.position) throw new LocationUnavailableError();
     return this.position;
+  }
+}
+
+export function aPublicReport(overrides: Partial<PublicReportView> = {}): PublicReportView {
+  return {
+    reference: "ABCD-EFGH-JKMN",
+    status: "under_review",
+    category: "river_pollution",
+    area: "Sample Community",
+    submittedAt: "2026-11-14T08:00:00.000Z",
+    updatedAt: "2026-11-15T09:30:00.000Z",
+    photoCount: 2,
+    timeline: [
+      { status: "received", at: "2026-11-14T08:00:00.000Z" },
+      { status: "under_review", at: "2026-11-15T09:30:00.000Z" },
+    ],
+    ...overrides,
+  };
+}
+
+// Knows one report. Any other code answers like the real API: 404, the same for unknown and malformed codes.
+export class FakeTrackApi implements TrackApi {
+  readonly asked: string[] = [];
+  failure?: Error;
+
+  constructor(private readonly report: PublicReportView = aPublicReport()) {}
+
+  async track(code: string): Promise<PublicReportView> {
+    this.asked.push(code);
+    if (this.failure) throw this.failure;
+    if (code !== this.report.reference) throw new ApiError("rejected", "Not found", 404);
+    return this.report;
   }
 }

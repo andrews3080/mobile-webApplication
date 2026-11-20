@@ -58,6 +58,9 @@ export function SubmittedScreen({ receipt, onAnother }: Props) {
       <button type="button" onClick={onAnother}>
         Make another report
       </button>
+      <a href="#/track" className="button secondary">
+        Check a report
+      </a>
     </section>
   );
 }

@@ -3,12 +3,13 @@ import { BrowserLocationFinder } from "../infrastructure/browser-location-finder
 import { CanvasImageCompressor } from "../infrastructure/canvas-image-compressor";
 import { HttpReportApi } from "../infrastructure/http-report-api";
 import { IndexedDbDraftStore } from "../infrastructure/indexed-db-draft-store";
-import type { ReportServices } from "../ui/services";
+import type { AppServices } from "../ui/App";
 
 // Composition root for the browser: the ONLY place that picks the real implementations
-export function createBrowserServices(): ReportServices {
+export function createBrowserServices(): AppServices {
   const api = new HttpReportApi();
   return {
+    tracking: api,
     drafts: new IndexedDbDraftStore(),
     photos: api,
     reports: api,
