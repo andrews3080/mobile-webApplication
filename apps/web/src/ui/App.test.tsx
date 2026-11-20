@@ -4,13 +4,11 @@ import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { App } from "./App";
 import { InMemoryDraftStore } from "../infrastructure/in-memory-draft-store";
-import { InMemoryTokenStore } from "../infrastructure/token-stores";
 import {
   FakeCompressor,
   FakeLocationFinder,
   FakePhotoApi,
   FakeReportApi,
-  FakeOfficerApi,
   FakeTrackApi,
   FixedClock,
   RecordingSleeper,
@@ -33,8 +31,6 @@ function renderApp() {
     ids: new SequenceIds(),
     sleeper: new RecordingSleeper(),
     tracking: new FakeTrackApi(),
-    officer: new FakeOfficerApi(),
-    officerTokens: new InMemoryTokenStore(),
   };
   render(<App services={services} autosaveMs={0} />);
   return userEvent.setup();
