@@ -35,3 +35,10 @@ export class DraftStorageFullError extends Error {
     this.name = "DraftStorageFullError";
   }
 }
+
+export class LocationUnavailableError extends Error {
+  constructor(message = "We could not get your position. You can still send the report with a place name.") {
+    super(message);
+    this.name = "LocationUnavailableError";
+  }
+}

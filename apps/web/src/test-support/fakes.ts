@@ -1,8 +1,12 @@
-import { ApiError } from "../core/errors";
+import { ApiError, LocationUnavailableError } from "../core/errors";
 import type {
   Clock,
   IdGenerator,
+  ImageCompressor,
+  LocationFinder,
+  MapPosition,
   PhotoUploadApi,
+  PreparedImage,
   ReportSubmitApi,
   Sleeper,
   SubmitReceipt,
@@ -103,5 +107,27 @@ export class FakeReportApi implements ReportSubmitApi {
     const failure = this.failures.shift();
     if (failure) throw failure;
     return { reference: "ABCD-EFGH-JKMN", alreadyReceived: false };
+  }
+}
+
+// Pretends to shrink pictures. Records the size limit it was given on each call.
+export class FakeCompressor implements ImageCompressor {
+  readonly calls: number[] = [];
+  failOn?: number; // 1-based call number that throws, as if the file were broken
+  outputSize = 3;
+
+  async compress(_file: Blob, maxBytes: number): Promise<PreparedImage> {
+    this.calls.push(maxBytes);
+    if (this.failOn === this.calls.length) throw new Error("cannot decode");
+    return { contentType: "image/jpeg", bytes: new ArrayBuffer(this.outputSize) };
+  }
+}
+
+export class FakeLocationFinder implements LocationFinder {
+  constructor(private readonly position: MapPosition | null = { latitude: 5.3, longitude: -1.98 }) {}
+
+  async current(): Promise<MapPosition> {
+    if (!this.position) throw new LocationUnavailableError();
+    return this.position;
   }
 }

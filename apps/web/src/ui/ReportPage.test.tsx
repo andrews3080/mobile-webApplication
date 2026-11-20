@@ -1,0 +1,189 @@
+// @vitest-environment jsdom
+import { afterEach, describe, it, expect } from "vitest";
+import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { ReportPage } from "./ReportPage";
+import type { ReportServices } from "./services";
+import { InMemoryDraftStore } from "../infrastructure/in-memory-draft-store";
+import {
+  aDraft,
+  FakeCompressor,
+  FakeLocationFinder,
+  FakePhotoApi,
+  FakeReportApi,
+  FixedClock,
+  networkError,
+  RecordingSleeper,
+  rejectedError,
+  SequenceIds,
+} from "../test-support/fakes";
+
+afterEach(cleanup);
+
+// Generic so each fake keeps its own type (tests read fake-only fields such as reports.submitted)
+function setup<O extends Partial<ReportServices>>(overrides: O = {} as O) {
+  const services = {
+    drafts: new InMemoryDraftStore(),
+    photos: new FakePhotoApi(),
+    reports: new FakeReportApi(),
+    compressor: new FakeCompressor(),
+    location: new FakeLocationFinder(),
+    clock: new FixedClock(),
+    ids: new SequenceIds(),
+    sleeper: new RecordingSleeper(),
+    ...overrides,
+  };
+  const user = userEvent.setup();
+  render(<ReportPage services={services} autosaveMs={0} />);
+  return { ...services, user };
+}
+
+const sendButton = () => screen.getByRole("button", { name: "Send report" });
+
+async function fillValidReport(user: ReturnType<typeof userEvent.setup>) {
+  await user.selectOptions(await screen.findByLabelText("What did you see?"), "river_pollution");
+  await user.type(screen.getByLabelText("Describe what you saw"), "Brown water and two excavators at the river");
+  await user.type(screen.getByLabelText("Where is it?"), "Sample Community");
+}
+
+describe("ReportPage", () => {
+  it("sends a complete report and shows the tracking code", async () => {
+    const { user, reports, drafts } = setup();
+    await fillValidReport(user);
+    await user.click(sendButton());
+
+    expect(await screen.findByTestId("reference")).toHaveProperty("textContent", "ABCD-EFGH-JKMN");
+    expect(reports.submitted).toHaveLength(1);
+    expect(reports.submitted[0]?.body).toMatchObject({ category: "river_pollution", area: "Sample Community", photoKeys: [] });
+    expect(await drafts.load()).toBeNull();
+  });
+
+  it("lists every problem and sends nothing when the form is incomplete", async () => {
+    const { user, reports } = setup();
+    await user.click(await screen.findByRole("button", { name: "Send report" }));
+
+    const summary = screen.getByRole("alert");
+    expect(summary.textContent).toContain("Please choose what you saw.");
+    expect(summary.textContent).toContain("Please describe what you saw");
+    expect(summary.textContent).toContain("Please say where this is");
+    expect(screen.getByLabelText("Where is it?").getAttribute("aria-invalid")).toBe("true");
+    expect(reports.submitted).toHaveLength(0);
+  });
+
+  it("checks a field when the reporter leaves it, but not when they only pass through", async () => {
+    const { user } = setup();
+    const description = await screen.findByLabelText("Describe what you saw");
+
+    await user.click(description);
+    await user.tab(); // left empty: no complaint yet
+    expect(screen.queryByText(/at least 10 characters/)).toBeNull();
+
+    await user.type(description, "diggers");
+    await user.tab();
+    expect(screen.getByText(/at least 10 characters/)).toBeDefined();
+    expect(description.getAttribute("aria-invalid")).toBe("true");
+    expect(screen.queryByText("Please check these before sending")).toBeNull(); // the summary waits for "Send"
+  });
+
+  it("moves the cursor into the field when a problem in the summary is chosen", async () => {
+    const { user } = setup();
+    await user.click(await screen.findByRole("button", { name: "Send report" }));
+    await user.click(screen.getByRole("link", { name: "Please say where this is (town, district or community)." }));
+    expect(document.activeElement).toBe(screen.getByLabelText("Where is it?"));
+  });
+
+  it("asks before throwing a report away", async () => {
+    const { user, drafts } = setup();
+    await user.type(await screen.findByLabelText("Where is it?"), "Tarkwa");
+
+    await user.click(screen.getByRole("button", { name: "Start a new report" }));
+    await user.click(screen.getByRole("button", { name: "No, keep my report" }));
+    expect(screen.getByDisplayValue("Tarkwa")).toBeDefined();
+
+    await user.click(screen.getByRole("button", { name: "Start a new report" }));
+    await user.click(screen.getByRole("button", { name: "Yes, delete it" }));
+    await waitFor(() => expect((screen.getByLabelText("Where is it?") as HTMLInputElement).value).toBe(""));
+    expect(await drafts.load()).toBeNull();
+  });
+
+  it("saves what the reporter types on the device", async () => {
+    const { user, drafts } = setup();
+    await user.type(await screen.findByLabelText("Where is it?"), "Tarkwa");
+    await waitFor(async () => expect((await drafts.load())?.area).toBe("Tarkwa"));
+    expect(await screen.findByText("Saved on this device")).toBeDefined();
+  });
+
+  it("picks up a report started earlier", async () => {
+    const drafts = new InMemoryDraftStore();
+    await drafts.save(aDraft({ area: "Prestea" }));
+    setup({ drafts });
+    expect(await screen.findByDisplayValue("Prestea")).toBeDefined();
+    expect(screen.getByText(/We kept the report you started earlier/)).toBeDefined();
+  });
+
+  it("keeps the report on the device when the connection keeps failing", async () => {
+    const reports = new FakeReportApi();
+    reports.failNext(networkError(), networkError(), networkError(), networkError());
+    const { user, drafts } = setup({ reports });
+    await fillValidReport(user);
+    await user.click(sendButton());
+
+    expect((await screen.findByRole("alert")).textContent).toContain("It is saved on this device");
+    expect((await drafts.load())?.area).toBe("Sample Community");
+
+    // Later the connection is back: pressing send again works, with the same idempotency key
+    await user.click(sendButton());
+    expect(await screen.findByTestId("reference")).toBeDefined();
+    expect(new Set(reports.submitted.map((s) => s.key)).size).toBe(1);
+  });
+
+  it("shows the server's reason when it refuses the report", async () => {
+    const reports = new FakeReportApi();
+    reports.failNext(rejectedError());
+    const { user } = setup({ reports });
+    await fillValidReport(user);
+    await user.click(sendButton());
+    expect((await screen.findByRole("alert")).textContent).toBe("The report was not accepted: no");
+  });
+
+  it("adds the phone's position on request and can remove it", async () => {
+    const { user, reports } = setup();
+    await user.click(await screen.findByRole("button", { name: "Use my current position" }));
+    expect(await screen.findByText(/Position saved: 5\.30000, -1\.98000/)).toBeDefined();
+
+    await fillValidReport(user);
+    await user.click(sendButton());
+    await screen.findByTestId("reference");
+    expect(reports.submitted[0]?.body).toMatchObject({ latitude: 5.3, longitude: -1.98 });
+  });
+
+  it("explains when the position is not available", async () => {
+    const { user } = setup({ location: new FakeLocationFinder(null) });
+    await user.click(await screen.findByRole("button", { name: "Use my current position" }));
+    expect(await screen.findByText(/We could not get your position/)).toBeDefined();
+  });
+
+  it("uploads chosen photos with the report, and lets the reporter remove one", async () => {
+    const { user, photos, reports } = setup();
+    const files = [new File(["a"], "a.jpg", { type: "image/jpeg" }), new File(["b"], "b.jpg", { type: "image/jpeg" })];
+    await user.upload(await screen.findByLabelText(/Add photos/), files);
+    expect(await screen.findByRole("button", { name: "Remove photo 2" })).toBeDefined();
+
+    await user.click(screen.getByRole("button", { name: "Remove photo 2" }));
+    expect(screen.queryByRole("button", { name: "Remove photo 2" })).toBeNull();
+
+    await fillValidReport(user);
+    await user.click(sendButton());
+    await screen.findByTestId("reference");
+    expect(photos.sent).toHaveLength(1);
+    expect(reports.submitted[0]?.body.photoKeys).toHaveLength(1);
+  });
+
+  it("starts a fresh, empty report after sending", async () => {
+    const { user } = setup();
+    await fillValidReport(user);
+    await user.click(sendButton());
+    await user.click(await screen.findByRole("button", { name: "Make another report" }));
+    expect(((await screen.findByLabelText("Where is it?")) as HTMLInputElement).value).toBe("");
+  });
+});

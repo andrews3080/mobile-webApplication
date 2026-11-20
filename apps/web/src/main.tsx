@@ -1,30 +1,25 @@
-import { StrictMode, useEffect, useState } from "react";
+import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { createBrowserServices } from "./app/browser-services";
+import { Icon } from "./ui/Icon";
+import { ReportPage } from "./ui/ReportPage";
+import "./styles.css";
 
-// Temporary page that only proves the web app can reach the API through the dev proxy.
-// The real reporting form arrives in Step 6b.
-function App() {
-  const [status, setStatus] = useState("checking...");
-
-  useEffect(() => {
-    fetch("/api/health")
-      .then((response) => response.json())
-      .then((body: { status?: string }) => setStatus(body.status ?? "unknown"))
-      .catch(() => setStatus("cannot reach the API"));
-  }, []);
-
-  return (
-    <main>
-      <h1>Asaase Ani</h1>
-      <p>API status: {status}</p>
-    </main>
-  );
-}
+const services = createBrowserServices();
 
 const root = document.getElementById("root");
 if (!root) throw new Error("Missing #root element");
 createRoot(root).render(
   <StrictMode>
-    <App />
+    <header className="topbar">
+      <div className="topbar-inner">
+        <Icon name="logo" size={28} />
+        <span className="brand">Asaase Ani</span>
+        <span className="brand-sub">Protect our land and water</span>
+      </div>
+    </header>
+    <main>
+      <ReportPage services={services} />
+    </main>
   </StrictMode>,
 );

@@ -65,3 +65,24 @@ export interface Sleeper {
 export interface IdGenerator {
   next(): string;
 }
+
+// A photo ready to go into the draft: re-encoded (which also drops hidden metadata such as GPS) and small enough
+export interface PreparedImage {
+  contentType: string;
+  bytes: ArrayBuffer;
+}
+
+export interface ImageCompressor {
+  // Throws when the file is not a picture the browser can read
+  compress(file: Blob, maxBytes: number): Promise<PreparedImage>;
+}
+
+export interface MapPosition {
+  latitude: number;
+  longitude: number;
+}
+
+export interface LocationFinder {
+  // Throws LocationUnavailableError when the phone cannot or will not say where it is
+  current(): Promise<MapPosition>;
+}

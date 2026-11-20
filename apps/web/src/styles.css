@@ -1,0 +1,532 @@
+/* Mobile first: most reporters will be on a small, low-cost phone, often outdoors in bright light.
+   System fonts only (no download), high contrast, big targets, no decorative motion. */
+:root {
+  --ink: #1b1f1d;
+  --muted: #4d5652;
+  --line: #c9d2cd;
+  --field-line: #8a948f; /* input borders: 3:1 against white, so the boxes are visible outdoors */
+  --brand: #1f6b45;
+  --brand-dark: #17533a;
+  --brand-ink: #ffffff;
+  --brand-tint: #e8f3ec;
+  --danger: #a3261b;
+  --danger-dark: #7f1d15;
+  --warn-line: #b06d00;
+  --warn-tint: #fff6e5;
+  --page: #f2f5f3;
+  --card: #ffffff;
+  --focus: #f2b705;
+  --radius: 12px;
+  color-scheme: light; /* designed for bright outdoor light; a dark theme would need its own contrast checks */
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--ink);
+  background: var(--page);
+}
+
+body {
+  margin: 0;
+  background: var(--page);
+}
+
+/* ---------- Header ---------- */
+
+.topbar {
+  background: var(--brand);
+  color: var(--brand-ink);
+  padding-top: env(safe-area-inset-top);
+}
+
+.topbar-inner {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 0.7rem max(1rem, env(safe-area-inset-right)) 0.7rem max(1rem, env(safe-area-inset-left));
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  column-gap: 0.6rem;
+}
+
+.brand {
+  font-weight: 800;
+  font-size: 1.15rem;
+  letter-spacing: 0.01em;
+}
+
+.brand-sub {
+  font-size: 0.95rem;
+  opacity: 0.92;
+  margin-left: auto;
+}
+
+main {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 1.25rem max(1rem, env(safe-area-inset-right)) 2rem max(1rem, env(safe-area-inset-left));
+}
+
+/* ---------- Text ---------- */
+
+h1 {
+  font-size: 1.65rem;
+  line-height: 1.2;
+  margin: 0 0 0.5rem;
+  text-wrap: balance;
+}
+
+.intro {
+  margin-bottom: 1rem;
+}
+
+.lead,
+.hint {
+  color: var(--muted);
+}
+
+.lead {
+  margin: 0;
+}
+
+.hint {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem; /* stays at 16px or more on phones */
+}
+
+.icon {
+  flex: none;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- Boxes: safety, notices, error summary ---------- */
+
+.safety,
+.notice {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  border-radius: var(--radius);
+  padding: 0.8rem 1rem;
+  margin: 0 0 1rem;
+}
+
+.safety {
+  background: var(--warn-tint);
+  border: 2px solid var(--warn-line);
+}
+
+.safety .icon {
+  color: var(--warn-line);
+  margin-top: 0.1rem;
+}
+
+.notice {
+  background: var(--brand-tint);
+  border: 2px solid var(--brand);
+}
+
+.summary {
+  background: var(--card);
+  border: 3px solid var(--danger);
+  border-radius: var(--radius);
+  padding: 0.6rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.summary h2 {
+  font-size: 1.1rem;
+  margin: 0.3rem 0;
+}
+
+.summary ul {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.summary a {
+  color: var(--danger);
+  display: inline-block;
+  padding: 0.35rem 0; /* easier to tap */
+}
+
+/* ---------- Steps ---------- */
+
+fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.1rem 1rem 0.4rem;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
+}
+
+.step-title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  font-size: 1.2rem;
+  margin: 0 0 1rem;
+}
+
+.step-number {
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--brand);
+  color: var(--brand-ink);
+  font-size: 1rem;
+  font-weight: 800;
+  flex: none;
+}
+
+.tag {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.2;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: var(--brand-tint);
+  color: var(--brand-dark);
+  vertical-align: middle;
+}
+
+.card > .hint {
+  margin-bottom: 1rem;
+}
+
+/* ---------- Fields ---------- */
+
+.field {
+  margin: 0 0 1.25rem;
+}
+
+label,
+.label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+}
+
+input[type="text"],
+input[type="tel"],
+input[type="email"],
+input[type="datetime-local"],
+select,
+textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 48px;
+  font: inherit;
+  padding: 0.6rem 0.75rem;
+  border: 2px solid var(--field-line);
+  border-radius: 8px;
+  background: #fff;
+  color: inherit;
+}
+
+textarea {
+  resize: vertical;
+}
+
+[aria-invalid="true"] {
+  border-color: var(--danger);
+  background: #fff8f7;
+}
+
+.problem,
+.error {
+  color: var(--danger);
+  font-weight: 600;
+  margin: 0.35rem 0 0;
+}
+
+.note {
+  color: var(--muted);
+  margin: 0.4rem 0 0;
+}
+
+.position {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.6rem;
+  margin: 0;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  background: var(--brand-tint);
+  font-weight: 600;
+}
+
+.position .icon {
+  color: var(--brand);
+}
+
+.position .link {
+  margin-left: auto;
+}
+
+/* ---------- Buttons ---------- */
+
+/* Yellow alone is too faint on white (about 1.7:1), so a dark ring sits inside the yellow halo:
+   visible on white, on the green buttons and on the yellow safety box */
+:focus-visible,
+.file-input:focus-visible + .button {
+  outline: 3px solid var(--ink);
+  outline-offset: 0;
+  box-shadow: 0 0 0 6px var(--focus);
+}
+
+button,
+.button {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font: inherit;
+  min-height: 48px; /* big enough for a thumb */
+  padding: 0.6rem 1.2rem;
+  margin: 0;
+  border-radius: 8px;
+  border: 2px solid var(--brand);
+  background: var(--brand);
+  color: var(--brand-ink);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+button:hover:not(:disabled) {
+  background: var(--brand-dark);
+}
+
+button.secondary,
+.button.secondary {
+  background: #fff;
+  color: var(--brand);
+}
+
+button.secondary:hover:not(:disabled),
+.button.secondary:hover {
+  background: var(--brand-tint);
+}
+
+/* Looks like a link, but keeps a thumb-sized tap area */
+button.link {
+  min-height: 44px;
+  padding: 0.5rem 0.25rem;
+  border: 0;
+  background: none;
+  color: var(--brand);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  font-weight: 400;
+}
+
+button.link:hover:not(:disabled) {
+  background: none;
+  text-decoration-thickness: 2px;
+}
+
+button.danger {
+  background: var(--danger);
+  border-color: var(--danger);
+}
+
+button.danger:hover:not(:disabled) {
+  background: var(--danger-dark);
+}
+
+button:disabled,
+.button[aria-disabled="true"] {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* ---------- Photos ---------- */
+
+.file-picker {
+  margin-bottom: 1rem;
+}
+
+.photos {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 0.75rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr));
+  gap: 0.75rem;
+}
+
+.photos li {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.photos img,
+.thumb-placeholder {
+  box-sizing: border-box;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  background: var(--page);
+}
+
+/* ---------- Send bar ---------- */
+
+.send-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  margin: 1rem calc(-1 * max(1rem, env(safe-area-inset-left))) 0;
+  padding: 0.75rem max(1rem, env(safe-area-inset-left)) calc(0.5rem + env(safe-area-inset-bottom));
+  background: var(--page);
+  border-top: 1px solid var(--line);
+  box-shadow: 0 -4px 12px rgb(0 0 0 / 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.send-bar button[type="submit"] {
+  width: 100%;
+  min-height: 52px;
+  font-size: 1.05rem;
+}
+
+.send-bar .error {
+  margin: 0 0 0.4rem;
+}
+
+.save-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  margin: 0;
+  color: var(--brand-dark);
+  font-size: 0.95rem;
+  min-height: 1.5em;
+}
+
+.start-over {
+  margin-top: 0.75rem;
+}
+
+.confirm {
+  background: var(--card);
+  border: 2px solid var(--danger);
+  border-radius: var(--radius);
+  padding: 0.85rem 1rem;
+}
+
+.confirm p {
+  margin: 0 0 0.75rem;
+  font-weight: 600;
+}
+
+.confirm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+/* ---------- Sent ---------- */
+
+.submitted {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1rem;
+  padding-bottom: 1.1rem;
+  text-align: center;
+}
+
+.submitted h1:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.success-mark {
+  align-self: center;
+  display: inline-grid;
+  place-items: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  background: var(--brand-tint);
+  color: var(--brand);
+}
+
+.code-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1rem;
+  border: 2px dashed var(--brand);
+  border-radius: var(--radius);
+  background: var(--brand-tint);
+}
+
+.code-label {
+  margin: 0;
+  font-weight: 600;
+  color: var(--brand-dark);
+}
+
+.code {
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-size: clamp(1.4rem, 7vw, 1.9rem);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  margin: 0;
+  user-select: all;
+  overflow-wrap: anywhere;
+}
+
+.submitted .safety {
+  text-align: left;
+  margin: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}
