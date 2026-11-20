@@ -1,9 +1,16 @@
+import { regionOfArea } from "@asaase-ani/shared";
 import type { MapPosition } from "./ports";
 import type { DraftPhoto, ReportDraft } from "./report-draft";
 
 // Small, pure changes to a draft. Each returns a NEW draft with a fresh updatedAt, so React sees the change.
 
-export type TextField = "description" | "category" | "area" | "contactName" | "contactPhone" | "contactEmail";
+export type TextField = "description" | "category" | "area" | "placeDetails" | "contactName" | "contactPhone" | "contactEmail";
+
+// A new region empties the district unless it belongs to that region
+export function setRegion(draft: ReportDraft, region: string, now: Date): ReportDraft {
+  const keepArea = draft.area !== "" && regionOfArea(draft.area) === region;
+  return { ...draft, region, area: keepArea ? draft.area : "", updatedAt: now.toISOString() };
+}
 
 export function setText(draft: ReportDraft, field: TextField, value: string, now: Date): ReportDraft {
   return { ...draft, [field]: value, updatedAt: now.toISOString() };

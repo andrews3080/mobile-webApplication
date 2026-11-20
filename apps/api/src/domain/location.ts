@@ -1,10 +1,13 @@
 import { DomainError } from "./errors";
 
 export interface LocationInput {
-  area: string; // district or community name (compulsory)
+  area: string; // the district (or "District not known, <Region>"); routes the report to officers (compulsory)
   latitude?: number; // GPS, optional
   longitude?: number; // GPS, optional
+  placeDetails?: string; // town, community or landmark in the reporter's words, optional, officers only
 }
+
+export const MAX_PLACE_DETAILS = 200;
 
 // Value object: validated once on creation, never changed afterwards
 export class Location {
@@ -12,6 +15,7 @@ export class Location {
     readonly area: string,
     readonly latitude: number | undefined,
     readonly longitude: number | undefined,
+    readonly placeDetails: string | undefined, // never public: it can point at a person's farm or house
   ) {}
 
   static create(input: LocationInput): Location {
@@ -36,14 +40,17 @@ export class Location {
       if (!valid) throw new DomainError("Coordinates are out of range");
     }
 
-    return new Location(area, latitude, longitude);
+    const placeDetails = input.placeDetails?.trim() || undefined;
+    if (placeDetails && placeDetails.length > MAX_PLACE_DETAILS) throw new DomainError("Place details are too long");
+
+    return new Location(area, latitude, longitude, placeDetails);
   }
 
   get hasCoordinates(): boolean {
     return this.latitude !== undefined;
   }
 
-  // The ONLY location text that may appear on public pages (Requirement 4)
+  // The ONLY location text that may appear on public pages (Requirement 4): the district, never the details
   toPublicArea(): string {
     return this.area;
   }

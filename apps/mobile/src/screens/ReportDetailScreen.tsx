@@ -230,6 +230,7 @@ export function ReportDetailScreen({ api, token, code, onBack, onSessionEnded }:
 
         <Card title="Where">
           <Text style={styles.strong}>{report.area}</Text>
+          {report.placeDetails ? <Text style={styles.body}>{report.placeDetails}</Text> : null}
           {lat !== null && lon !== null ? (
             <>
               <Text style={styles.body}>

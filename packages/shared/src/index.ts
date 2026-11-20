@@ -10,3 +10,4 @@ export * from "./officer";
 export * from "./tracking";
 export * from "./format";
 export * from "./officer-errors";
+export * from "./ghana-districts";

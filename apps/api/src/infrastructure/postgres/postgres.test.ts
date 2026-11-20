@@ -56,7 +56,12 @@ if (!url) {
       it("stores and returns every field, including coordinates, contact and history", async () => {
         const repo = new PostgresReportRepository(pool);
         const original = aReport("AAAA-AAAA-AAAA", {
-          location: Location.create({ area: "Sample Community", latitude: 5.123456, longitude: -0.654321 }),
+          location: Location.create({
+            area: "Sample Community",
+            latitude: 5.123456,
+            longitude: -0.654321,
+            placeDetails: "Behind the old school, near the river bridge",
+          }),
           contact: { name: "Kwame Test", phone: "0240000000", email: "kwame@example.com" },
           photoKeys: ["photos/a.jpg", "photos/b.jpg"],
         })

@@ -66,6 +66,7 @@ export function parseSubmitRequest(idempotencyKey: string | undefined, rawBody: 
     observedAt: new Date(requiredString(body, "observedAt")),
     area: requiredString(body, "area"),
     latitude: optionalNumber(body, "latitude"),
+    placeDetails: optionalString(body, "placeDetails"),
     longitude: optionalNumber(body, "longitude"),
     photoKeys: optionalStringList(body, "photoKeys"),
     contact,

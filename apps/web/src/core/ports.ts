@@ -6,6 +6,7 @@ export interface SubmitRequest {
   category: string;
   observedAt: string;
   area: string;
+  placeDetails?: string;
   latitude?: number;
   longitude?: number;
   photoKeys: string[];

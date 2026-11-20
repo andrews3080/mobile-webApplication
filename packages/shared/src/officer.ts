@@ -18,6 +18,7 @@ export interface OfficerReportView {
   area: string;
   latitude: number | null;
   longitude: number | null;
+  placeDetails?: string | null; // town, community or landmark in the reporter's words
   photoKeys: string[];
   contact: { name?: string; phone?: string; email?: string } | null;
   history: { from: string; to: string; officerId: string; reason: string | null; at: string }[];

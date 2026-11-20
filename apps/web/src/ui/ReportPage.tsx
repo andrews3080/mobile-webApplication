@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 import type { FormEvent } from "react";
-import { addPhoto, clearPosition, fromLocalInputValue, removePhoto, setObservedAt, setPosition, setText, toLocalInputValue } from "../core/draft-editor";
+import { districtsOf, GHANA_REGIONS, isGhanaRegion, unknownDistrictArea } from "@asaase-ani/shared";
+import { addPhoto, clearPosition, fromLocalInputValue, removePhoto, setObservedAt, setPosition, setRegion, setText, toLocalInputValue } from "../core/draft-editor";
 import type { TextField } from "../core/draft-editor";
 import { ApiError, DraftInvalidError, DraftStorageFullError, LocationUnavailableError } from "../core/errors";
 import { preparePhotos } from "../core/photo-intake";
@@ -26,13 +27,26 @@ const FIELD_IDS: Record<DraftField, string> = {
   category: "category",
   description: "description",
   observedAt: "observedAt",
+  region: "region",
   area: "area",
+  placeDetails: "placeDetails",
   location: "location-button",
   photos: "photos-input",
   contactPhone: "contactPhone",
   contactEmail: "contactEmail",
 };
-const FIELD_ORDER: DraftField[] = ["category", "description", "observedAt", "area", "location", "photos", "contactPhone", "contactEmail"];
+const FIELD_ORDER: DraftField[] = [
+  "category",
+  "description",
+  "region",
+  "area",
+  "placeDetails",
+  "observedAt",
+  "location",
+  "photos",
+  "contactPhone",
+  "contactEmail",
+];
 
 function sendFailureMessage(error: unknown): string {
   if (error instanceof ApiError && error.kind === "rejected") return `The report was not accepted: ${error.message}`;
@@ -254,10 +268,54 @@ export function ReportPage({ services, autosaveMs }: Props) {
         <section className="card" aria-labelledby="step-2">
           <div id="step-2">{step(2, "Where and when")}</div>
           <div className="field">
-            <label htmlFor="area">Where is it?</label>
-            <p className="hint">Town, community or district. Add a landmark if you can.</p>
-            <input {...fieldProps("area")} type="text" maxLength={100} value={draft.area} onChange={(e) => text("area")(e.target.value)} />
+            <label htmlFor="region">Region</label>
+            <select {...fieldProps("region")} value={draft.region} onChange={(e) => update((d, now) => setRegion(d, e.target.value, now))}>
+              <option value="">Choose the region…</option>
+              {GHANA_REGIONS.map((region) => (
+                <option key={region} value={region}>
+                  {region}
+                </option>
+              ))}
+            </select>
+            {problemText("region")}
+          </div>
+
+          <div className="field">
+            <label htmlFor="area">District</label>
+            <p className="hint" id="area-hint">
+              {draft.region ? "The district decides which officers receive your report." : "Choose the region first."}
+            </p>
+            <select
+              {...fieldProps("area")}
+              aria-describedby={[problems.area ? "area-problem" : "", "area-hint"].filter(Boolean).join(" ")}
+              value={draft.area}
+              disabled={!draft.region}
+              onChange={(e) => text("area")(e.target.value)}
+            >
+              <option value="">Choose the district…</option>
+              {isGhanaRegion(draft.region) && <option value={unknownDistrictArea(draft.region)}>I don&apos;t know the district</option>}
+              {districtsOf(draft.region).map((district) => (
+                <option key={district} value={district}>
+                  {district}
+                </option>
+              ))}
+            </select>
             {problemText("area")}
+          </div>
+
+          <div className="field">
+            <label htmlFor="placeDetails">
+              Town, community or landmark <span className="tag">Optional</span>
+            </label>
+            <p className="hint">Helps officers find the place. Only officers see this; it is not shown on the tracking page.</p>
+            <input
+              {...fieldProps("placeDetails")}
+              type="text"
+              maxLength={200}
+              value={draft.placeDetails}
+              onChange={(e) => text("placeDetails")(e.target.value)}
+            />
+            {problemText("placeDetails")}
           </div>
 
           <div className="field">

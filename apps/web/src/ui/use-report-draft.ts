@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { DraftStorageFullError } from "../core/errors";
-import { newDraft } from "../core/report-draft";
+import { newDraft, upgradeDraft } from "../core/report-draft";
 import type { ReportDraft } from "../core/report-draft";
 import type { ReportServices } from "./services";
 
@@ -84,7 +84,8 @@ export function useReportDraft(services: ReportServices, autosaveMs = DEFAULT_AU
   const reload = useCallback(async () => {
     cancelPending();
     dirty.current = false;
-    show((await drafts.load()) ?? fresh());
+    const saved = await drafts.load();
+    show(saved ? upgradeDraft(saved) : fresh());
   }, [drafts, fresh, show]);
 
   const startOver = useCallback(async () => {
@@ -105,7 +106,7 @@ export function useReportDraft(services: ReportServices, autosaveMs = DEFAULT_AU
       .then((saved) => {
         if (cancelled) return;
         setRestored(saved !== null);
-        show(saved ?? fresh());
+        show(saved ? upgradeDraft(saved) : fresh());
       });
     return () => {
       cancelled = true;

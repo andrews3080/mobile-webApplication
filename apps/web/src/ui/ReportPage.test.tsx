@@ -43,7 +43,8 @@ const sendButton = () => screen.getByRole("button", { name: "Send report" });
 async function fillValidReport(user: ReturnType<typeof userEvent.setup>) {
   await user.selectOptions(await screen.findByLabelText("What did you see?"), "river_pollution");
   await user.type(screen.getByLabelText("Describe what you saw"), "Brown water and two excavators at the river");
-  await user.type(screen.getByLabelText("Where is it?"), "Sample Community");
+  await user.selectOptions(screen.getByLabelText("Region"), "Western");
+  await user.selectOptions(screen.getByLabelText("District"), "Tarkwa-Nsuaem Municipal");
 }
 
 describe("ReportPage", () => {
@@ -54,7 +55,7 @@ describe("ReportPage", () => {
 
     expect(await screen.findByTestId("reference")).toHaveProperty("textContent", "ABCD-EFGH-JKMN");
     expect(reports.submitted).toHaveLength(1);
-    expect(reports.submitted[0]?.body).toMatchObject({ category: "river_pollution", area: "Sample Community", photoKeys: [] });
+    expect(reports.submitted[0]?.body).toMatchObject({ category: "river_pollution", area: "Tarkwa-Nsuaem Municipal", photoKeys: [] });
     expect(await drafts.load()).toBeNull();
   });
 
@@ -65,8 +66,8 @@ describe("ReportPage", () => {
     const summary = screen.getByRole("alert");
     expect(summary.textContent).toContain("Please choose what you saw.");
     expect(summary.textContent).toContain("Please describe what you saw");
-    expect(summary.textContent).toContain("Please say where this is");
-    expect(screen.getByLabelText("Where is it?").getAttribute("aria-invalid")).toBe("true");
+    expect(summary.textContent).toContain("Please choose the region.");
+    expect(screen.getByLabelText("Region").getAttribute("aria-invalid")).toBe("true");
     expect(reports.submitted).toHaveLength(0);
   });
 
@@ -88,13 +89,13 @@ describe("ReportPage", () => {
   it("moves the cursor into the field when a problem in the summary is chosen", async () => {
     const { user } = setup();
     await user.click(await screen.findByRole("button", { name: "Send report" }));
-    await user.click(screen.getByRole("link", { name: "Please say where this is (town, district or community)." }));
-    expect(document.activeElement).toBe(screen.getByLabelText("Where is it?"));
+    await user.click(screen.getByRole("link", { name: "Please choose the region." }));
+    expect(document.activeElement).toBe(screen.getByLabelText("Region"));
   });
 
   it("asks before throwing a report away", async () => {
     const { user, drafts } = setup();
-    await user.type(await screen.findByLabelText("Where is it?"), "Tarkwa");
+    await user.type(await screen.findByLabelText(/Town, community or landmark/), "Tarkwa");
 
     await user.click(screen.getByRole("button", { name: "Start a new report" }));
     await user.click(screen.getByRole("button", { name: "No, keep my report" }));
@@ -102,14 +103,14 @@ describe("ReportPage", () => {
 
     await user.click(screen.getByRole("button", { name: "Start a new report" }));
     await user.click(screen.getByRole("button", { name: "Yes, delete it" }));
-    await waitFor(() => expect((screen.getByLabelText("Where is it?") as HTMLInputElement).value).toBe(""));
+    await waitFor(() => expect((screen.getByLabelText(/Town, community or landmark/) as HTMLInputElement).value).toBe(""));
     expect(await drafts.load()).toBeNull();
   });
 
   it("saves what the reporter types on the device", async () => {
     const { user, drafts } = setup();
-    await user.type(await screen.findByLabelText("Where is it?"), "Tarkwa");
-    await waitFor(async () => expect((await drafts.load())?.area).toBe("Tarkwa"));
+    await user.type(await screen.findByLabelText(/Town, community or landmark/), "Tarkwa");
+    await waitFor(async () => expect((await drafts.load())?.placeDetails).toBe("Tarkwa"));
     expect(await screen.findByText("Saved on this device")).toBeDefined();
   });
 
@@ -129,7 +130,7 @@ describe("ReportPage", () => {
     await user.click(sendButton());
 
     expect((await screen.findByRole("alert")).textContent).toContain("It is saved on this device");
-    expect((await drafts.load())?.area).toBe("Sample Community");
+    expect((await drafts.load())?.area).toBe("Tarkwa-Nsuaem Municipal");
 
     // Later the connection is back: pressing send again works, with the same idempotency key
     await user.click(sendButton());
@@ -184,7 +185,7 @@ describe("ReportPage", () => {
     await fillValidReport(user);
     await user.click(sendButton());
     await user.click(await screen.findByRole("button", { name: "Make another report" }));
-    expect(((await screen.findByLabelText("Where is it?")) as HTMLInputElement).value).toBe("");
+    expect(((await screen.findByLabelText(/Town, community or landmark/)) as HTMLInputElement).value).toBe("");
   });
 });
 
@@ -203,5 +204,30 @@ describe("privacy notice", () => {
   it("asks reporters not to photograph faces, especially children", async () => {
     setup();
     expect(await screen.findByText(/Try not to show people's faces, especially children/)).toBeDefined();
+  });
+});
+
+describe("choosing the place", () => {
+  it("offers only the districts of the chosen region, plus 'I don't know the district'", async () => {
+    const { user, reports } = setup();
+    const district = (await screen.findByLabelText("District")) as HTMLSelectElement;
+    expect(district.disabled).toBe(true); // region first
+
+    await user.selectOptions(screen.getByLabelText("Region"), "Western North");
+    const options = Array.from(district.options).map((o) => o.textContent);
+    expect(options).toContain("Sefwi Wiawso Municipal");
+    expect(options).not.toContain("Tarkwa-Nsuaem Municipal");
+
+    await user.selectOptions(screen.getByLabelText("What did you see?"), "forest_clearing");
+    await user.type(screen.getByLabelText("Describe what you saw"), "Trees cut down and pits dug near the stream");
+    await user.selectOptions(district, "I don't know the district");
+    await user.type(screen.getByLabelText(/Town, community or landmark/), "Near the cocoa farms after Akontombra");
+    await user.click(screen.getByRole("button", { name: "Send report" }));
+
+    await screen.findByTestId("reference");
+    expect(reports.submitted[0]?.body).toMatchObject({
+      area: "District not known, Western North Region",
+      placeDetails: "Near the cocoa farms after Akontombra",
+    });
   });
 });

@@ -48,6 +48,7 @@ export interface ReportSnapshot {
   area: string;
   latitude?: number;
   longitude?: number;
+  placeDetails?: string;
   photoKeys: string[];
   contact?: Contact;
   status: ReportStatus;
@@ -125,7 +126,12 @@ export class Report {
       snapshot.description,
       category,
       snapshot.observedAt,
-      Location.create({ area: snapshot.area, latitude: snapshot.latitude, longitude: snapshot.longitude }),
+      Location.create({
+        area: snapshot.area,
+        latitude: snapshot.latitude,
+        longitude: snapshot.longitude,
+        placeDetails: snapshot.placeDetails,
+      }),
       [...snapshot.photoKeys],
       snapshot.contact,
       snapshot.status,

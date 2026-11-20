@@ -30,3 +30,23 @@ describe("Location", () => {
     expect(loc.toPublicArea()).toBe("Sample District");
   });
 });
+
+describe("Location place details", () => {
+  it("keeps the reporter's town or landmark, tidied", () => {
+    const location = Location.create({ area: "Tarkwa-Nsuaem Municipal", placeDetails: "  Near the river bridge  " });
+    expect(location.placeDetails).toBe("Near the river bridge");
+  });
+
+  it("treats blank details as none", () => {
+    expect(Location.create({ area: "Tarkwa-Nsuaem Municipal", placeDetails: "   " }).placeDetails).toBeUndefined();
+  });
+
+  it("refuses details over 200 characters", () => {
+    expect(() => Location.create({ area: "Tarkwa-Nsuaem Municipal", placeDetails: "x".repeat(201) })).toThrow(DomainError);
+  });
+
+  it("never puts the details in the public area", () => {
+    const location = Location.create({ area: "Tarkwa-Nsuaem Municipal", placeDetails: "Behind Kofi's farm" });
+    expect(location.toPublicArea()).toBe("Tarkwa-Nsuaem Municipal");
+  });
+});

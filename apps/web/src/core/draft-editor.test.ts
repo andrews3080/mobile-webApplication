@@ -5,6 +5,7 @@ import {
   fromLocalInputValue,
   removePhoto,
   setPosition,
+  setRegion,
   setText,
   toLocalInputValue,
 } from "./draft-editor";
@@ -13,10 +14,10 @@ import { aDraft, aPhoto, NOW } from "../test-support/fakes";
 describe("draft editor", () => {
   it("changes one text field and stamps the time, leaving the original alone", () => {
     const before = aDraft();
-    const after = setText(before, "area", "Tarkwa", NOW);
-    expect(after.area).toBe("Tarkwa");
+    const after = setText(before, "placeDetails", "Near the river bridge", NOW);
+    expect(after.placeDetails).toBe("Near the river bridge");
     expect(after.updatedAt).toBe(NOW.toISOString());
-    expect(before.area).toBe("Sample Community");
+    expect(before.placeDetails).toBe("");
   });
 
   it("sets and clears the map position together", () => {
@@ -44,5 +45,13 @@ describe("date-time input conversion", () => {
     expect(toLocalInputValue("nonsense")).toBe("");
     expect(fromLocalInputValue("")).toBe("");
     expect(fromLocalInputValue("not a date")).toBe("");
+  });
+});
+
+describe("choosing the region", () => {
+  it("keeps the district when it belongs to the new region, and clears it otherwise", () => {
+    const draft = aDraft({ region: "Western", area: "Tarkwa-Nsuaem Municipal" });
+    expect(setRegion(draft, "Western", NOW).area).toBe("Tarkwa-Nsuaem Municipal");
+    expect(setRegion(draft, "Ashanti", NOW).area).toBe("");
   });
 });

@@ -52,10 +52,11 @@ describe("SubmitDraft", () => {
 
   it("tidies the request: trims text, drops blank contact, keeps coordinates", async () => {
     const { reports, useCase } = setup();
-    await useCase.execute(aDraft({ description: "  Muddy water near the river  ", area: " Sample Community ", latitude: 5.5, longitude: -0.5 }));
+    await useCase.execute(aDraft({ description: "  Muddy water near the river  ", placeDetails: " Near the bridge ", latitude: 5.5, longitude: -0.5 }));
     const body = reports.submitted[0]?.body;
     expect(body?.description).toBe("Muddy water near the river");
-    expect(body?.area).toBe("Sample Community");
+    expect(body?.area).toBe("Tarkwa-Nsuaem Municipal");
+    expect(body?.placeDetails).toBe("Near the bridge");
     expect(body?.latitude).toBe(5.5);
     expect(body?.contact).toBeUndefined();
   });

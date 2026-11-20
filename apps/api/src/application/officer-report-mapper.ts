@@ -12,6 +12,7 @@ export interface OfficerReportView {
   area: string;
   latitude: number | null;
   longitude: number | null;
+  placeDetails: string | null;
   photoKeys: string[];
   contact: Contact | null;
   history: {
@@ -35,6 +36,7 @@ export class OfficerReportMapper {
       area: report.location.area,
       latitude: report.location.latitude ?? null,
       longitude: report.location.longitude ?? null,
+      placeDetails: report.location.placeDetails ?? null,
       photoKeys: [...report.photoKeys],
       contact: report.contact ?? null,
       history: report.history.map((event) => ({

@@ -25,8 +25,13 @@ describe("validateDraft", () => {
   });
 
   it("needs a place name", () => {
-    expect(validateDraft(aDraft({ area: "   " }), NOW).area).toBeDefined();
-    expect(validateDraft(aDraft({ area: "x".repeat(101) }), NOW).area).toBeDefined();
+    expect(validateDraft(aDraft({ region: "" }), NOW).region).toBeDefined();
+    expect(validateDraft(aDraft({ region: "Atlantis" }), NOW).region).toBeDefined();
+    expect(validateDraft(aDraft({ area: "" }), NOW).area).toBeDefined();
+    expect(validateDraft(aDraft({ area: "Obuasi Municipal" }), NOW).area).toBeDefined(); // a district of another region
+    expect(validateDraft(aDraft({ area: "District not known, Western Region" }), NOW).area).toBeUndefined();
+    expect(validateDraft(aDraft({ placeDetails: "x".repeat(201) }), NOW).placeDetails).toBeDefined();
+    expect(validateDraft(aDraft({ placeDetails: "" }), NOW).placeDetails).toBeUndefined();
   });
 
   it("accepts a map position only when complete and in range", () => {
@@ -50,7 +55,7 @@ describe("validateDraft", () => {
   });
 
   it("reports every problem at once, not just the first", () => {
-    const problems = validateDraft(aDraft({ description: "", category: "", area: "" }), NOW);
-    expect(Object.keys(problems).sort()).toEqual(["area", "category", "description"]);
+    const problems = validateDraft(aDraft({ description: "", category: "", region: "" }), NOW);
+    expect(Object.keys(problems).sort()).toEqual(["category", "description", "region"]);
   });
 });

@@ -60,7 +60,11 @@ async function makeDevOfficer(): Promise<{ account: UserAccount; password: strin
     email: "officer@example.com",
     passwordHash: await hasher.hash(password),
     role: "officer",
-    areas: [process.env["DEV_AREA"] ?? "Sample Community"],
+    // Districts from the shared list, separated by ";" (area names can contain commas)
+    areas: (process.env["DEV_AREAS"] ?? "Tarkwa-Nsuaem Municipal;District not known, Western Region")
+      .split(";")
+      .map((area) => area.trim())
+      .filter((area) => area.length > 0),
     active: true,
   };
   return { account, password };

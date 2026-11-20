@@ -14,6 +14,7 @@ export interface SubmitReportInput {
   area: string;
   latitude?: number;
   longitude?: number;
+  placeDetails?: string;
   photoKeys?: string[]; // keys returned by the upload step
   contact?: Contact;
 }
@@ -53,6 +54,7 @@ export class SubmitReport {
       area: input.area,
       latitude: input.latitude,
       longitude: input.longitude,
+      placeDetails: input.placeDetails,
     });
     const report = Report.create(
       {

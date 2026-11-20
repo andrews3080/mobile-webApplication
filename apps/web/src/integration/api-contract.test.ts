@@ -77,12 +77,21 @@ describe("the web client against the real API", () => {
   it("lets the reporter track the report, and shows no private data", () =>
     withServer(async (api) => {
       const useCase = new SubmitDraft(new InMemoryDraftStore(), api, api, new FixedClock(), new RecordingSleeper());
-      const receipt = await useCase.execute(aDraft({ contactName: "Kwame Test", contactPhone: "0240000000", latitude: 5.123456, longitude: -0.654321 }));
+      const receipt = await useCase.execute(
+        aDraft({
+          contactName: "Kwame Test",
+          contactPhone: "0240000000",
+          latitude: 5.123456,
+          longitude: -0.654321,
+          placeDetails: "Behind Kofi's farm, near the river bridge",
+        }),
+      );
 
       const view = await api.track(receipt.reference);
 
       expect(view.status).toBe("received");
-      expect(view.area).toBe("Sample Community");
+      expect(view.area).toBe("Tarkwa-Nsuaem Municipal");
+      expect(JSON.stringify(view)).not.toContain("Kofi"); // place details are for officers only
       const text = JSON.stringify(view);
       expect(text).not.toContain("Kwame");
       expect(text).not.toContain("0240000000");

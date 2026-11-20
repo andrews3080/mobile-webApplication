@@ -1,11 +1,16 @@
+import { isGhanaRegion, regionOfArea } from "@asaase-ani/shared";
 import { MAX_PHOTOS, REPORT_CATEGORIES } from "./report-draft";
+
+export const MAX_PLACE_DETAILS = 200; // the API refuses longer
 import type { ReportDraft } from "./report-draft";
 
 export type DraftField =
   | "description"
   | "category"
   | "observedAt"
+  | "region"
   | "area"
+  | "placeDetails"
   | "location"
   | "contactPhone"
   | "contactEmail"
@@ -32,9 +37,14 @@ export function validateDraft(draft: ReportDraft, now: Date): DraftProblems {
   if (Number.isNaN(observed.getTime())) problems.observedAt = "Please say when you saw this.";
   else if (observed.getTime() > now.getTime() + CLOCK_SKEW_MS) problems.observedAt = "The date and time cannot be in the future.";
 
-  const area = draft.area.trim();
-  if (area.length === 0) problems.area = "Please say where this is (town, district or community).";
-  else if (area.length > 100) problems.area = "That place name is too long.";
+  if (!isGhanaRegion(draft.region)) {
+    problems.region = "Please choose the region.";
+  } else if (regionOfArea(draft.area) !== draft.region) {
+    problems.area = "Please choose the district, or choose “I don't know the district”.";
+  }
+  if (draft.placeDetails.trim().length > MAX_PLACE_DETAILS) {
+    problems.placeDetails = `Please keep the town or landmark under ${MAX_PLACE_DETAILS} characters.`;
+  }
 
   const { latitude, longitude } = draft;
   if ((latitude === undefined) !== (longitude === undefined)) {

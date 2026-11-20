@@ -367,3 +367,25 @@ describe("cross-origin browser calls", () => {
     expect(other.headers["access-control-allow-origin"]).toBeUndefined();
   });
 });
+
+describe("place details", () => {
+  it("are shown to officers but never on the public tracking page", async () => {
+    const { app, loginAs } = await setupHttp();
+    const res = await submit(app, { ...REPORT, placeDetails: "Behind Kofi's farm, near the river bridge" }, "place-details-key-0001");
+    expect(res.status).toBe(201);
+
+    const tracked = await request(app).get(`/api/track/${res.body.reference}`);
+    expect(tracked.body.area).toBe("Sample Community");
+    expect(JSON.stringify(tracked.body)).not.toContain("Kofi");
+
+    const token = await loginAs("officer@example.com");
+    const officerView = await request(app).get(`/api/officer/reports/${res.body.reference}`).set(...bearer(token));
+    expect(officerView.body.placeDetails).toBe("Behind Kofi's farm, near the river bridge");
+  });
+
+  it("refuses place details that are not text", async () => {
+    const { app } = await setupHttp();
+    const res = await submit(app, { ...REPORT, placeDetails: 42 }, "place-details-key-0002");
+    expect(res.status).toBe(400);
+  });
+});

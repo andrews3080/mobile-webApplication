@@ -45,14 +45,14 @@ describe("App", () => {
 
   it("goes to the tracking page and back, keeping what was typed in the report", async () => {
     const user = renderApp();
-    await user.type(await screen.findByLabelText("Where is it?"), "Tarkwa");
+    await user.type(await screen.findByLabelText(/Town, community or landmark/), "Tarkwa");
 
     await user.click(screen.getByRole("link", { name: "Check a report" }));
     expect(await screen.findByRole("heading", { name: "Check a report" })).toBeDefined();
     expect(screen.getByRole("link", { name: "Check a report" }).getAttribute("aria-current")).toBe("page");
 
     await user.click(screen.getByRole("link", { name: "Report" }));
-    expect(((await screen.findByLabelText("Where is it?")) as HTMLInputElement).value).toBe("Tarkwa");
+    expect(((await screen.findByLabelText(/Town, community or landmark/)) as HTMLInputElement).value).toBe("Tarkwa");
   });
 
   it("opens the tracking page straight from its address", async () => {

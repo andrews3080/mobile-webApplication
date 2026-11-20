@@ -16,6 +16,7 @@ type ReportRow = {
   area: string;
   latitude: number | null;
   longitude: number | null;
+  place_details: string | null;
   photo_keys: string[];
   contact: Contact | null;
   status: ReportStatus;
@@ -33,8 +34,8 @@ type EventRow = {
 const INSERT_REPORT = `
   INSERT INTO reports (
     reference, idempotency_key, description, category, observed_at, created_at,
-    area, area_key, latitude, longitude, photo_keys, contact, status
-  ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12::jsonb, $13)
+    area, area_key, latitude, longitude, photo_keys, contact, status, place_details
+  ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12::jsonb, $13, $14)
   ON CONFLICT (idempotency_key) DO NOTHING`;
 
 async function insertEvents(client: PoolClient, report: Report): Promise<void> {
@@ -74,6 +75,7 @@ export class PostgresReportRepository implements ReportRepository {
         [...report.photoKeys],
         report.contact ? JSON.stringify(report.contact) : null,
         report.status,
+        report.location.placeDetails ?? null,
       ]);
       created = (inserted.rowCount ?? 0) > 0;
       if (created) await insertEvents(client, report);
@@ -170,6 +172,7 @@ export class PostgresReportRepository implements ReportRepository {
         area: row.area,
         latitude: row.latitude ?? undefined,
         longitude: row.longitude ?? undefined,
+        placeDetails: row.place_details ?? undefined,
         photoKeys: row.photo_keys,
         contact: row.contact ?? undefined,
         status: row.status,
