@@ -187,3 +187,21 @@ describe("ReportPage", () => {
     expect(((await screen.findByLabelText("Where is it?")) as HTMLInputElement).value).toBe("");
   });
 });
+
+describe("privacy notice", () => {
+  it("says who sees the report and asks not to name anyone, before the send button", async () => {
+    setup();
+    const notice = await screen.findByRole("region", { name: "Before you send" });
+    expect(notice.textContent).toContain("only authorised officers for that area");
+    expect(notice.textContent).toContain("Do not name or accuse anyone");
+    expect(notice.textContent).toContain("Data Protection Act, 2012 (Act 843)");
+    // the notice comes before the send button in reading order
+    const send = screen.getByRole("button", { name: "Send report" });
+    expect(notice.compareDocumentPosition(send) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("asks reporters not to photograph faces, especially children", async () => {
+    setup();
+    expect(await screen.findByText(/Try not to show people's faces, especially children/)).toBeDefined();
+  });
+});

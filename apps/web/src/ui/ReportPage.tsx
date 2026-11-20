@@ -11,6 +11,7 @@ import { validateDraft } from "../core/validate-draft";
 import type { DraftField, DraftProblems } from "../core/validate-draft";
 import { Icon } from "./Icon";
 import { PhotoThumb } from "./PhotoThumb";
+import { PrivacyNotice } from "./PrivacyNotice";
 import { SubmittedScreen } from "./SubmittedScreen";
 import type { ReportServices } from "./services";
 import { useReportDraft } from "./use-report-draft";
@@ -235,7 +236,10 @@ export function ReportPage({ services, autosaveMs }: Props) {
 
           <div className="field">
             <label htmlFor="description">Describe what you saw</label>
-            <p className="hint">For example: how many people or machines, what they were doing, the colour of the water.</p>
+            <p className="hint">
+              For example: how many people or machines, what they were doing, the colour of the water. Please describe the
+              activity, not who did it.
+            </p>
             <textarea
               {...fieldProps("description")}
               rows={5}
@@ -295,7 +299,10 @@ export function ReportPage({ services, autosaveMs }: Props) {
 
         <section className="card" aria-labelledby="step-3">
           <div id="step-3">{step(3, "Photos", true)}</div>
-          <p className="hint">Only take photos if it is safe. Hidden details such as location are removed from photos.</p>
+          <p className="hint">
+            Only take photos if it is safe. Try not to show people&apos;s faces, especially children. Hidden details such as
+            location are removed from photos.
+          </p>
           {draft.photos.length > 0 && (
             <ul className="photos">
               {draft.photos.map((photo, index) => (
@@ -358,6 +365,8 @@ export function ReportPage({ services, autosaveMs }: Props) {
           </div>
         </section>
       </fieldset>
+
+      <PrivacyNotice />
 
       {/* Stays at the bottom of the screen while scrolling, so "Send" is always one tap away */}
       <div className="send-bar">

@@ -755,3 +755,53 @@ a {
   color: var(--brand);
   text-underline-offset: 0.15em;
 }
+
+/* ---------- Privacy notice ---------- */
+
+.privacy {
+  margin-top: 1rem;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-left: 6px solid var(--brand);
+  border-radius: var(--radius);
+  padding: 1rem 1rem 0.75rem;
+}
+
+.privacy h2 {
+  font-size: 1.15rem;
+  margin: 0 0 0.5rem;
+}
+
+.privacy ul {
+  margin: 0 0 0.5rem;
+  padding-left: 1.2rem;
+}
+
+.privacy li {
+  margin-bottom: 0.4rem;
+}
+
+.privacy details {
+  margin: 0.25rem 0 0.5rem;
+}
+
+.privacy summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--brand);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  cursor: pointer;
+}
+
+.privacy-more p {
+  margin: 0 0 0.6rem;
+}
+
+.privacy-agree {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
