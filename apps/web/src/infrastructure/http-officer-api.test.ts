@@ -52,6 +52,15 @@ describe("HttpOfficerApi", () => {
     expect(calls.map((c) => JSON.parse(String(c.init.body)))).toEqual([{ reason: "Seen on site" }, { question: "Which bank of the river?" }, {}]);
   });
 
+  it("sends a referral note, and an empty body when closing without a note", async () => {
+    const { api, calls } = apiWith(() => respond(200, { reference: "ABCD-EFGH-JKMN", status: "closed" }));
+    await api.review("t", "ABCD-EFGH-JKMN", "refer-for-action", "District task force");
+    await api.review("t", "ABCD-EFGH-JKMN", "close");
+    await api.review("t", "ABCD-EFGH-JKMN", "close", "   ");
+    expect(calls.map((c) => c.url.split("/").pop())).toEqual(["refer-for-action", "close", "close"]);
+    expect(calls.map((c) => JSON.parse(String(c.init.body)))).toEqual([{ note: "District task force" }, {}, {}]);
+  });
+
   it("reports an expired session as a 401 rejection", async () => {
     const { api } = apiWith(() => respond(401, { error: { code: "unauthorized", message: "You need to log in" } }));
     await expect(api.listReports("old")).rejects.toMatchObject({ kind: "rejected", status: 401 });

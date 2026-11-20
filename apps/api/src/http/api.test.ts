@@ -303,3 +303,43 @@ describe("refusals are enforced AND logged over HTTP", () => {
     expect(audit.entries().some((e) => e.actorId === "officer-far" && e.outcome === "denied")).toBe(true);
   });
 });
+
+describe("passing on and closing over HTTP", () => {
+  async function verifiedReport() {
+    const http = await setupHttp();
+    const { body } = await submit(http.app);
+    const token = await http.loginAs("officer@example.com");
+    await request(http.app).post(`/api/officer/reports/${body.reference}/start-review`).set(...bearer(token));
+    await request(http.app).post(`/api/officer/reports/${body.reference}/verify`).set(...bearer(token)).send({ reason: "Photos match the site" });
+    return { ...http, code: body.reference as string, token };
+  }
+
+  it("passes a report on when a note says to whom, and refuses without one", async () => {
+    const { app, code, token } = await verifiedReport();
+    const missing = await request(app).post(`/api/officer/reports/${code}/refer-for-action`).set(...bearer(token)).send({});
+    expect(missing.status).toBe(400);
+
+    const res = await request(app)
+      .post(`/api/officer/reports/${code}/refer-for-action`)
+      .set(...bearer(token))
+      .send({ note: "District Assembly mining task force" });
+    expect(res.status).toBe(200);
+    expect(res.body.status).toBe("referred_for_action");
+  });
+
+  it("closes with an empty body, and with a note", async () => {
+    const { app, code, token } = await verifiedReport();
+    const res = await request(app).post(`/api/officer/reports/${code}/close`).set(...bearer(token));
+    expect(res.status).toBe(200);
+    expect(res.body.status).toBe("closed");
+
+    const again = await request(app).post(`/api/officer/reports/${code}/close`).set(...bearer(token)).send({ note: "Done" });
+    expect(again.status).toBe(422); // already closed: no move from closed
+  });
+
+  it("needs a login to close", async () => {
+    const { app, code } = await verifiedReport();
+    const res = await request(app).post(`/api/officer/reports/${code}/close`);
+    expect(res.status).toBe(401);
+  });
+});

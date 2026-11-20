@@ -119,3 +119,62 @@ describe("review actions", () => {
     await expect(start.execute(officer, CODE)).rejects.toThrow(ConflictError);
   });
 });
+
+describe("after the decision: passing on and closing", () => {
+  async function verified() {
+    const s = await setupReview();
+    await s.start.execute(officer, CODE);
+    await s.verify.execute(officer, CODE, "Photos match the site");
+    return s;
+  }
+
+  it("passes a confirmed report on and records who it went to", async () => {
+    const s = await verified();
+    const result = await s.refer.execute(officer, CODE, "District Assembly mining task force");
+    expect(result.status).toBe("referred_for_action");
+
+    const stored = await s.repo.findByReference(reference());
+    expect(stored?.history.at(-1)?.reason).toBe("District Assembly mining task force");
+    expect(s.audit.entries().at(-1)?.action).toBe("report.refer_for_action");
+  });
+
+  it("will not pass a report on without saying to whom", async () => {
+    const s = await verified();
+    await expect(s.refer.execute(officer, CODE, "  ")).rejects.toThrow(DomainError);
+  });
+
+  it("cannot pass on a report that was never confirmed", async () => {
+    const s = await setupReview();
+    await s.start.execute(officer, CODE);
+    await expect(s.refer.execute(officer, CODE, "District Assembly")).rejects.toThrow(DomainError);
+  });
+
+  it("closes a passed-on report, with or without a note", async () => {
+    const s = await verified();
+    await s.refer.execute(officer, CODE, "District Assembly mining task force");
+    const result = await s.close.execute(officer, CODE);
+    expect(result.status).toBe("closed");
+    expect((await s.repo.findByReference(reference()))?.history.at(-1)?.reason).toBeUndefined();
+  });
+
+  it("closes a rejected report and keeps the closing note", async () => {
+    const s = await setupReview();
+    await s.start.execute(officer, CODE);
+    await s.reject.execute(officer, CODE, "Photos show a farm, not a mine");
+    await s.close.execute(officer, CODE, "No further action");
+    expect((await s.repo.findByReference(reference()))?.history.at(-1)?.reason).toBe("No further action");
+  });
+
+  it("cannot close a report still waiting for review", async () => {
+    const s = await setupReview();
+    await expect(s.close.execute(officer, CODE)).rejects.toThrow(DomainError);
+  });
+
+  it("shows the reporter the new status but never the note", async () => {
+    const s = await verified();
+    await s.refer.execute(officer, CODE, "District Assembly mining task force");
+    const view = await new TrackReport(s.repo, new PublicReportMapper()).execute(CODE);
+    expect(view.status).toBe("referred_for_action");
+    expect(JSON.stringify(view)).not.toContain("task force");
+  });
+});

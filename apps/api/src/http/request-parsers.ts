@@ -113,3 +113,10 @@ export function parseUploadQuery(expires: unknown, signature: unknown): { expire
   }
   return { expiresAtMs: Number(expires), signature };
 }
+
+// For actions where a note is welcome but not required. An empty or missing body means "no note".
+export function parseOptionalTextField(rawBody: unknown, field: string): string | undefined {
+  if (rawBody === undefined || rawBody === null) return undefined;
+  const value = optionalString(asObject(rawBody, "The request body"), field);
+  return value !== undefined && value.trim() !== "" ? value : undefined;
+}

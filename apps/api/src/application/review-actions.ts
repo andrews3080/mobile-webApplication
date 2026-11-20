@@ -31,3 +31,19 @@ export class RequestMoreInformation {
     return this.workflow.apply(actor, code, "more_information_requested", "report.request_information", question);
   }
 }
+
+export class ReferForAction {
+  constructor(private readonly workflow: ReviewWorkflow) {}
+  // The note says who the report was passed to (required, like a reason)
+  execute(actor: Actor, code: string, note: string): Promise<ReviewResult> {
+    return this.workflow.apply(actor, code, "referred_for_action", "report.refer_for_action", note);
+  }
+}
+
+export class CloseReport {
+  constructor(private readonly workflow: ReviewWorkflow) {}
+  // A closing note is welcome but not required
+  execute(actor: Actor, code: string, note?: string): Promise<ReviewResult> {
+    return this.workflow.apply(actor, code, "closed", "report.close", note);
+  }
+}

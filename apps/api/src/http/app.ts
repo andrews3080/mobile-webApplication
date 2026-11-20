@@ -10,6 +10,7 @@ import { errorHandler } from "./error-handler";
 import { rateLimit } from "./rate-limit";
 import {
   parseLoginRequest,
+  parseOptionalTextField,
   parseStatusFilter,
   parseSubmitRequest,
   parseTextField,
@@ -194,6 +195,24 @@ export function createApp(services: Services, options: AppOptions) {
     handle(async (req, res) => {
       const question = parseTextField(req.body, "question");
       res.json(await services.requestInformation.execute(actorOf(res), param(req, "code"), question));
+    }),
+  );
+
+  app.post(
+    "/api/officer/reports/:code/refer-for-action",
+    officerOnly,
+    handle(async (req, res) => {
+      const note = parseTextField(req.body, "note");
+      res.json(await services.referForAction.execute(actorOf(res), param(req, "code"), note));
+    }),
+  );
+
+  app.post(
+    "/api/officer/reports/:code/close",
+    officerOnly,
+    handle(async (req, res) => {
+      const note = parseOptionalTextField(req.body, "note");
+      res.json(await services.closeReport.execute(actorOf(res), param(req, "code"), note));
     }),
   );
 

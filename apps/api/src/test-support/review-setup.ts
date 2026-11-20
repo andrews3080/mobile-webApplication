@@ -2,7 +2,7 @@ import { AccessGate } from "../application/access-gate";
 import { AccessPolicy } from "../application/access-policy";
 import { GetReportForOfficer } from "../application/get-report-for-officer";
 import { ListReportsForOfficer } from "../application/list-reports-for-officer";
-import { RejectReport, RequestMoreInformation, StartReview, VerifyReport } from "../application/review-actions";
+import { CloseReport, ReferForAction, RejectReport, RequestMoreInformation, StartReview, VerifyReport } from "../application/review-actions";
 import { ReviewWorkflow } from "../application/review-workflow";
 import { InMemoryAuditLog } from "../infrastructure/in-memory-audit-log";
 import { InMemoryReportRepository } from "../infrastructure/in-memory-report-repository";
@@ -30,6 +30,8 @@ export async function setupReview() {
     verify: new VerifyReport(workflow),
     reject: new RejectReport(workflow),
     askInfo: new RequestMoreInformation(workflow),
+    refer: new ReferForAction(workflow),
+    close: new CloseReport(workflow),
   };
 }
 

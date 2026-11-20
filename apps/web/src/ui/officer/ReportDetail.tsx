@@ -21,6 +21,8 @@ const DONE_MESSAGE: Record<string, string> = {
   verify: "Report confirmed.",
   reject: "Report marked as not confirmed.",
   "request-information": "Marked as needing more information.",
+  "refer-for-action": "Report passed on for action.",
+  close: "Report closed.",
 };
 
 export function ReportDetail({ api, token, code, onBack, onSessionEnded }: Props) {
@@ -82,13 +84,13 @@ export function ReportDetail({ api, token, code, onBack, onSessionEnded }: Props
   function onConfirm(event: FormEvent) {
     event.preventDefault();
     if (!chosen) return;
-    const problem = checkReason(text);
+    const problem = chosen.text?.optional ? null : checkReason(text);
     setTextProblem(problem);
     if (problem) {
       reasonRef.current?.focus();
       return;
     }
-    void act(chosen, text.trim());
+    void act(chosen, text.trim() === "" ? undefined : text.trim());
   }
 
   const back = (

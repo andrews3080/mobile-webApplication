@@ -27,6 +27,7 @@ export function canTransition(from: ReportStatus, to: ReportStatus): boolean {
   return ALLOWED[from].includes(to);
 }
 
-// Verifying or rejecting must always come with a recorded reason (Milestone 1, section 3.2)
-export const STATUSES_REQUIRING_REASON: readonly ReportStatus[] = ["verified", "rejected", "more_information_requested"];
+// Verifying or rejecting must always come with a recorded reason (Milestone 1, section 3.2).
+// Passing a report on must say who it went to, or nobody can follow it up.
+export const STATUSES_REQUIRING_REASON: readonly ReportStatus[] = ["verified", "rejected", "more_information_requested", "referred_for_action"];
 

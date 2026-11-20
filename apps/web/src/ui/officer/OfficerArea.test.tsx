@@ -93,6 +93,28 @@ describe("OfficerArea", () => {
     expect(screen.getByText("“ok - seen on site visit”")).toBeDefined(); // now in the history
   });
 
+  it("passes a confirmed report on, then closes it without a note", async () => {
+    const { user, api } = setup(new FakeOfficerApi(anOfficerReport({ status: "verified" })));
+    await openReport(user);
+
+    await user.click(screen.getByRole("button", { name: "Pass on for action" }));
+    await user.click(screen.getByRole("button", { name: "Pass on for action" }));
+    expect(screen.getByText(/Please write a reason/)).toBeDefined(); // who it went to is required
+
+    await user.type(screen.getByLabelText("Who was it passed to?"), "District mining task force");
+    await user.click(screen.getByRole("button", { name: "Pass on for action" }));
+    expect(await screen.findByText("Report passed on for action.")).toBeDefined();
+
+    await user.click(screen.getByRole("button", { name: "Close report" }));
+    await user.click(screen.getByRole("button", { name: "Close report" })); // the note is optional
+    expect(await screen.findByText("Report closed.")).toBeDefined();
+    expect(screen.getByText(/Nothing more to do here/)).toBeDefined();
+    expect(api.reviews.map((r) => [r.action, r.text])).toEqual([
+      ["refer-for-action", "District mining task force"],
+      ["close", undefined],
+    ]);
+  });
+
   it("reloads the report when another officer changed it first", async () => {
     const api = new FakeOfficerApi(anOfficerReport({ status: "received" }));
     api.failNextReview = new ApiError("rejected", "This report was just updated by someone else.", 409);

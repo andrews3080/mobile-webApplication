@@ -9,6 +9,8 @@ const TEXT_FIELD: Partial<Record<ReviewAction, string>> = {
   verify: "reason",
   reject: "reason",
   "request-information": "question",
+  "refer-for-action": "note",
+  close: "note",
 };
 
 const reportPath = (code: string) => `/api/officer/reports/${encodeURIComponent(code)}`;
@@ -68,12 +70,13 @@ export class HttpOfficerApi implements OfficerApi {
 
   async review(token: string, code: string, action: ReviewAction, text?: string): Promise<ReviewResult> {
     const field = TEXT_FIELD[action];
+    const hasText = text !== undefined && text.trim() !== "";
     const response = await this.send(
       `${reportPath(code)}/${action}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(field ? { [field]: text ?? "" } : {}),
+        body: JSON.stringify(field && hasText ? { [field]: text } : {}),
       },
       token,
     );

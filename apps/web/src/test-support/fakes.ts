@@ -234,7 +234,14 @@ export class FakeOfficerApi implements OfficerApi {
     if (failure) throw failure;
     const report = this.reports.get(code);
     if (!report) throw new ApiError("rejected", "Report not found", 404);
-    const to = { "start-review": "under_review", verify: "verified", reject: "rejected", "request-information": "more_information_requested" }[action];
+    const to = {
+      "start-review": "under_review",
+      verify: "verified",
+      reject: "rejected",
+      "request-information": "more_information_requested",
+      "refer-for-action": "referred_for_action",
+      close: "closed",
+    }[action];
     this.reports.set(code, {
       ...report,
       status: to,

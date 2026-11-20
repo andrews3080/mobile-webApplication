@@ -10,10 +10,21 @@ describe("actionsFor", () => {
     expect(names("under_review")).toEqual(["verify", "reject", "request-information"]);
   });
 
-  it("offers nothing once a decision is made (no API for later steps yet)", () => {
-    for (const status of ["verified", "rejected", "referred_for_action", "closed", "something_new"]) {
-      expect(names(status)).toEqual([]);
-    }
+  it("after the decision, offers passing on and closing", () => {
+    expect(names("verified")).toEqual(["refer-for-action", "close"]);
+    expect(names("rejected")).toEqual(["close"]);
+    expect(names("referred_for_action")).toEqual(["close"]);
+  });
+
+  it("offers nothing for a closed report, or a status it does not know", () => {
+    expect(names("closed")).toEqual([]);
+    expect(names("something_new")).toEqual([]);
+  });
+
+  it("makes the closing note optional, but not the referral note", () => {
+    const [refer, close] = actionsFor("verified");
+    expect(refer?.text?.optional).toBeFalsy();
+    expect(close?.text?.optional).toBe(true);
   });
 
   it("asks for a written reason exactly where the API requires one", () => {

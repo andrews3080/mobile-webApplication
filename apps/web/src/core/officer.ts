@@ -23,7 +23,7 @@ export interface OfficerReportView {
   history: { from: string; to: string; officerId: string; reason: string | null; at: string }[];
 }
 
-export type ReviewAction = "start-review" | "verify" | "reject" | "request-information";
+export type ReviewAction = "start-review" | "verify" | "reject" | "request-information" | "refer-for-action" | "close";
 
 export interface ReviewResult {
   reference: string;
@@ -51,8 +51,8 @@ export interface ActionInfo {
   action: ReviewAction;
   label: string;
   tone: "primary" | "positive" | "danger" | "neutral";
-  // When set, the officer must write something before the action can be taken
-  text?: { label: string; hint: string };
+  // When set, the action opens a text box first; the officer must fill it unless it is optional
+  text?: { label: string; hint: string; optional?: boolean };
 }
 
 const ACTIONS: Record<ReviewAction, ActionInfo> = {
@@ -75,10 +75,21 @@ const ACTIONS: Record<ReviewAction, ActionInfo> = {
     tone: "neutral",
     text: { label: "What do you need to know?", hint: "Kept in the report history. If the reporter left contact details, use them to ask." },
   },
+  "refer-for-action": {
+    action: "refer-for-action",
+    label: "Pass on for action",
+    tone: "primary",
+    text: { label: "Who was it passed to?", hint: "For example the agency or task force, and how. Kept in the report history." },
+  },
+  close: {
+    action: "close",
+    label: "Close report",
+    tone: "neutral",
+    text: { label: "Closing note", hint: "Optional. For example what was done. Kept in the report history.", optional: true },
+  },
 };
 
 // Same moves the API allows (apps/api domain/status.ts). The server still decides; this only hides buttons that would fail.
-// "Passed on for action" and "closed" have no API endpoints yet, so they are not offered.
 export function actionsFor(status: string): ActionInfo[] {
   switch (status) {
     case "received":
@@ -86,6 +97,11 @@ export function actionsFor(status: string): ActionInfo[] {
       return [ACTIONS["start-review"]];
     case "under_review":
       return [ACTIONS.verify, ACTIONS.reject, ACTIONS["request-information"]];
+    case "verified":
+      return [ACTIONS["refer-for-action"], ACTIONS.close];
+    case "rejected":
+    case "referred_for_action":
+      return [ACTIONS.close];
     default:
       return [];
   }
