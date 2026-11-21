@@ -11,6 +11,8 @@ import { SubmitDraft } from "../core/submit-draft";
 import { validateDraft } from "../core/validate-draft";
 import type { DraftField, DraftProblems } from "../core/validate-draft";
 import { Icon } from "./Icon";
+import { CategoryArt } from "./illustrations/CategoryArt";
+import { LandscapeHero } from "./illustrations/Landscape";
 import { PhotoThumb } from "./PhotoThumb";
 import { PrivacyNotice } from "./PrivacyNotice";
 import { SubmittedScreen } from "./SubmittedScreen";
@@ -24,7 +26,7 @@ interface Props {
 
 // Where each problem is shown, and the element to jump to from the summary
 const FIELD_IDS: Record<DraftField, string> = {
-  category: "category",
+  category: "category-excavation_site", // the first picture tile
   description: "description",
   observedAt: "observedAt",
   region: "region",
@@ -191,6 +193,11 @@ export function ReportPage({ services, autosaveMs }: Props) {
 
   return (
     <form className="report" onSubmit={(event) => void onSubmit(event)} noValidate aria-busy={sending}>
+      <div className="hero">
+        <LandscapeHero />
+        <p className="hero-slogan">Report. Monitor. Protect our Land.</p>
+      </div>
+
       <div className="intro">
         <h1>Report illegal mining</h1>
         <p className="lead">
@@ -235,18 +242,31 @@ export function ReportPage({ services, autosaveMs }: Props) {
       <fieldset disabled={sending} className="steps">
         <section className="card" aria-labelledby="step-1">
           <div id="step-1">{step(1, "What happened")}</div>
-          <div className="field">
-            <label htmlFor="category">What did you see?</label>
-            <select {...fieldProps("category")} value={draft.category} onChange={(e) => text("category")(e.target.value)}>
-              <option value="">Choose one…</option>
+          <fieldset
+            className="field category-field"
+            aria-invalid={problems.category ? true : undefined}
+            aria-describedby={problems.category ? "category-excavation_site-problem" : undefined}
+          >
+            <legend className="label">What did you see?</legend>
+            <p className="hint">Choose the picture closest to what you saw.</p>
+            <div className="category-tiles">
               {REPORT_CATEGORIES.map((category) => (
-                <option key={category.value} value={category.value}>
-                  {category.label}
-                </option>
+                <label key={category.value} className="category-tile" htmlFor={`category-${category.value}`}>
+                  <input
+                    id={`category-${category.value}`}
+                    type="radio"
+                    name="category"
+                    value={category.value}
+                    checked={draft.category === category.value}
+                    onChange={() => text("category")(category.value)}
+                  />
+                  <CategoryArt category={category.value} />
+                  <span className="category-name">{category.label}</span>
+                </label>
               ))}
-            </select>
+            </div>
             {problemText("category")}
-          </div>
+          </fieldset>
 
           <div className="field">
             <label htmlFor="description">Describe what you saw</label>

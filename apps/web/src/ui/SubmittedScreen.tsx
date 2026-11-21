@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { SubmitReceipt } from "../core/ports";
 import { Icon } from "./Icon";
+import { Seedling } from "./illustrations/Landscape";
 
 interface Props {
   receipt: SubmitReceipt;
@@ -18,9 +19,12 @@ export function SubmittedScreen({ receipt, onAnother }: Props) {
 
   return (
     <section className="card submitted">
-      <span className="success-mark">
-        <Icon name="check" size={32} />
-      </span>
+      <div className="success-art">
+        <Seedling />
+        <span className="success-mark">
+          <Icon name="check" size={24} />
+        </span>
+      </div>
       <h1 tabIndex={-1} ref={heading}>
         {receipt.alreadyReceived ? "We already have your report" : "Thank you. Your report was sent."}
       </h1>
