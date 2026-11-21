@@ -41,7 +41,7 @@ function setup<O extends Partial<ReportServices>>(overrides: O = {} as O) {
 const sendButton = () => screen.getByRole("button", { name: "Send report" });
 
 async function fillValidReport(user: ReturnType<typeof userEvent.setup>) {
-  await user.click(await screen.findByLabelText("Polluted river or stream"));
+  await user.selectOptions(await screen.findByLabelText("What did you see?"), "river_pollution");
   await user.type(screen.getByLabelText("Describe what you saw"), "Brown water and two excavators at the river");
   await user.selectOptions(screen.getByLabelText("Region"), "Western");
   await user.selectOptions(screen.getByLabelText("District"), "Tarkwa-Nsuaem Municipal");
@@ -218,7 +218,7 @@ describe("choosing the place", () => {
     expect(options).toContain("Sefwi Wiawso Municipal");
     expect(options).not.toContain("Tarkwa-Nsuaem Municipal");
 
-    await user.click(screen.getByLabelText("Cleared forest or farmland"));
+    await user.selectOptions(screen.getByLabelText("What did you see?"), "forest_clearing");
     await user.type(screen.getByLabelText("Describe what you saw"), "Trees cut down and pits dug near the stream");
     await user.selectOptions(district, "I don't know the district");
     await user.type(screen.getByLabelText(/Town, community or landmark/), "Near the cocoa farms after Akontombra");
@@ -229,29 +229,5 @@ describe("choosing the place", () => {
       area: "District not known, Western North Region",
       placeDetails: "Near the cocoa farms after Akontombra",
     });
-  }, 15_000); // fills in a whole report key by key, which is slow in jsdom when the full suite runs in parallel
-});
-
-describe("picture tiles for what was seen", () => {
-  it("offers one labelled picture per category, as a radio group", async () => {
-    setup();
-    const group = await screen.findByRole("group", { name: "What did you see?" });
-    const radios = Array.from(group.querySelectorAll('input[type="radio"]')).map((r) => (r as HTMLInputElement).value);
-    expect(radios).toEqual(["excavation_site", "river_pollution", "forest_clearing", "machinery_or_equipment", "other"]);
-  });
-
-  it("marks the chosen picture and keeps it in the draft", async () => {
-    const { user, drafts } = setup();
-    const tile = (await screen.findByLabelText("Machinery or equipment")) as HTMLInputElement;
-    await user.click(tile);
-    expect(tile.checked).toBe(true);
-    await waitFor(async () => expect((await drafts.load())?.category).toBe("machinery_or_equipment"));
-  });
-
-  it("sends the officer to the first tile from the error summary", async () => {
-    const { user } = setup();
-    await user.click(await screen.findByRole("button", { name: "Send report" }));
-    await user.click(screen.getByRole("link", { name: "Please choose what you saw." }));
-    expect(document.activeElement).toBe(screen.getByLabelText("Digging or excavation site"));
   });
 });

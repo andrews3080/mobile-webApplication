@@ -5,7 +5,6 @@ import type { PublicReportView, TrackApi } from "../core/ports";
 import { categoryLabel, checkTrackingCode, describeStatus } from "@asaase-ani/shared";
 import { AnswerBox } from "./AnswerBox";
 import { Icon } from "./Icon";
-import { RiverBanner } from "./illustrations/Landscape";
 
 interface Props {
   tracking: TrackApi;
@@ -76,10 +75,6 @@ export function TrackPage({ tracking }: Props) {
 
   return (
     <div className="track">
-      <div className="hero hero-small">
-        <RiverBanner />
-      </div>
-
       <div className="intro">
         <h1>Check a report</h1>
         <p className="lead">Enter the tracking code you got when you sent your report.</p>
