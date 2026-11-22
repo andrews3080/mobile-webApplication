@@ -2,12 +2,12 @@
 export const colors = {
   ink: "#1b1f1d",
   muted: "#4d5652",
-  line: "#c9d2cd",
+  line: "#d3d6cc",
   fieldLine: "#8a948f",
-  brand: "#1f6b45",
-  brandDark: "#17533a",
+  brand: "#1f4d3a", // the logo green (docs/brand)
+  brandDark: "#163a2b",
   brandInk: "#ffffff",
-  brandTint: "#e8f3ec",
+  brandTint: "#e3ede6",
   danger: "#a3261b",
   dangerTint: "#fdecea",
   warnLine: "#b06d00",
@@ -16,7 +16,7 @@ export const colors = {
   progressTint: "#e8f0fb",
   progressInk: "#133f78",
   neutralTint: "#eef0ef",
-  page: "#f2f5f3",
+  page: "#f5f1e6", // the logo cream
   card: "#ffffff",
 } as const;
 

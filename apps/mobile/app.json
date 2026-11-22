@@ -5,8 +5,8 @@
     "version": "0.1.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
-    "primaryColor": "#1f6b45",
-    "backgroundColor": "#f2f5f3",
+    "primaryColor": "#1f4d3a",
+    "backgroundColor": "#f5f1e6",
     "android": {
       "package": "gh.edu.ug.asaaseani.officer",
       "softwareKeyboardLayoutMode": "pan",

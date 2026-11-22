@@ -3,19 +3,19 @@
 :root {
   --ink: #1b1f1d;
   --muted: #4d5652;
-  --line: #c9d2cd;
+  --line: #d3d6cc;
   --field-line: #8a948f; /* input borders: 3:1 against white, so the boxes are visible outdoors */
-  --brand: #1f6b45;
-  --brand-dark: #17533a;
+  --brand: #1f4d3a; /* the logo green (docs/brand) */
+  --brand-dark: #163a2b;
   --brand-ink: #ffffff;
-  --brand-tint: #e8f3ec;
+  --brand-tint: #e3ede6;
   --danger: #a3261b;
   --danger-dark: #7f1d15;
   --warn-line: #b06d00;
   --warn-tint: #fff6e5;
-  --page: #f2f5f3;
+  --page: #f5f1e6; /* the logo cream */
   --card: #ffffff;
-  --focus: #f2b705;
+  --focus: #e0a526; /* the logo gold: decorative only (1.9:1 on cream), never for text or meaning */
   --radius: 12px;
   color-scheme: light; /* designed for bright outdoor light; a dark theme would need its own contrast checks */
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -1098,4 +1098,15 @@ a {
   font-weight: 800;
   font-size: 1.2rem;
   letter-spacing: 0.01em;
+}
+
+/* The logo's short gold bar under the page heading (decorative) */
+.intro h1::after {
+  content: "";
+  display: block;
+  width: 3rem;
+  height: 5px;
+  margin-top: 0.45rem;
+  border-radius: 999px;
+  background: var(--focus);
 }

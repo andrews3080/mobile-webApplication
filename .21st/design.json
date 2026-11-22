@@ -13,12 +13,36 @@
       "date": "2026-11-22",
       "choice": "A. Step by step",
       "summary": "One question per screen with a segmented progress bar, radio cards, Back/Next in a bar fixed to the bottom, and a final Check and send screen.",
-      "references": ["21st.dev #29790 Segmented Progress Questionnaire (sean0205)", "21st.dev #46263 Radio Card (mahmoudilyan)"],
+      "references": [
+        "21st.dev #29790 Segmented Progress Questionnaire (sean0205)",
+        "21st.dev #46263 Radio Card (mahmoudilyan)"
+      ],
       "rejected": [
         "B. One calm page (single form with folded optional sections)",
         "C. Evidence first (photo and location buttons first): nudges reporters to stay near the site, against the proposal's safety stance",
         "Illustrated, animated SVG landscape scenes (removed at the user's request, commit ada9534)"
       ]
+    },
+    {
+      "date": "2026-11-22",
+      "choice": "Palette follows the logo",
+      "summary": "Website and officer app moved from #1f6b45 / grey page to the logo green #1f4d3a on cream #f5f1e6, with gold accents."
     }
-  ]
+  ],
+  "brand": {
+    "logo": "docs/brand/asaase-ani-logo.png",
+    "mark": "docs/brand/asaase-ani-mark.svg",
+    "smallIcon": "docs/brand/asaase-ani-icon.svg",
+    "colors": {
+      "green": "#1f4d3a",
+      "greenDark": "#163a2b",
+      "greenTint": "#e3ede6",
+      "cream": "#f5f1e6",
+      "gold": "#e0a526"
+    },
+    "rules": [
+      "Gold is decorative only (1.9:1 on cream): focus halo and the bar under headings, never text or meaning",
+      "White on green 9.6:1; green text on cream 8.5:1"
+    ]
+  }
 }
