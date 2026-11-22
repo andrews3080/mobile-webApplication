@@ -12,7 +12,8 @@
     "dev:api": "npm run dev -w @asaase-ani/api",
     "migrate": "npm run migrate -w @asaase-ani/api",
     "dev:web": "npm run dev -w @asaase-ani/web",
-    "dev:mobile": "npm run start -w @asaase-ani/mobile"
+    "dev:mobile": "npm run start -w @asaase-ani/mobile",
+    "seed:samples": "npm run seed -w @asaase-ani/api"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",

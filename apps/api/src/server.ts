@@ -27,6 +27,7 @@ import { RandomIdGenerator } from "./infrastructure/random-id-generator";
 import { RandomReferenceGenerator } from "./infrastructure/random-reference-generator";
 import { ScryptPasswordHasher } from "./infrastructure/scrypt-password-hasher";
 import { SystemClock } from "./infrastructure/system-clock";
+import { sampleReports } from "./seed/sample-reports";
 
 const isProduction = process.env["NODE_ENV"] === "production";
 const databaseUrl = process.env["DATABASE_URL"];
@@ -105,6 +106,12 @@ if (databaseUrl) {
   store.add(dev.account);
   announce(dev);
   console.warn("DATABASE_URL not set. Using in-memory storage: all data disappears on restart.");
+
+  // Quick demos without a database: SEED_SAMPLES=1 loads the labelled synthetic reports
+  if (process.env["SEED_SAMPLES"] === "1") {
+    for (const { report, idempotencyKey } of sampleReports(new Date())) await repo.saveIfNew(report, idempotencyKey);
+    console.log("Loaded the synthetic sample reports into memory.");
+  }
 }
 
 const services = wire({
