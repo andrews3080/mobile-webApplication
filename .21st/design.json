@@ -1,0 +1,24 @@
+{
+  "product": "Asaase Ani reporter website (apps/web)",
+  "stack": "React 19 + plain CSS (no Tailwind/shadcn); tokens in apps/web/src/styles.css",
+  "constraints": [
+    "First visit <= 300 KB, repeat visit <= 50 KB (Milestone 1, Requirement 5)",
+    "360 px wide with no sideways scrolling",
+    "WCAG 4.5:1 text contrast, visible focus, 44-48 px touch targets",
+    "Respect prefers-reduced-motion; no autoplay video",
+    "Low-cost Android phones, bright outdoor light, weak networks, possibly low literacy"
+  ],
+  "decisions": [
+    {
+      "date": "2026-11-22",
+      "choice": "A. Step by step",
+      "summary": "One question per screen with a segmented progress bar, radio cards, Back/Next in a bar fixed to the bottom, and a final Check and send screen.",
+      "references": ["21st.dev #29790 Segmented Progress Questionnaire (sean0205)", "21st.dev #46263 Radio Card (mahmoudilyan)"],
+      "rejected": [
+        "B. One calm page (single form with folded optional sections)",
+        "C. Evidence first (photo and location buttons first): nudges reporters to stay near the site, against the proposal's safety stance",
+        "Illustrated, animated SVG landscape scenes (removed at the user's request, commit ada9534)"
+      ]
+    }
+  ]
+}
