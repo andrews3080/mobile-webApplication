@@ -852,3 +852,225 @@ a {
 .question .error {
   margin-top: 0.75rem;
 }
+
+/* ---------- Step-by-step report (design direction A) ---------- */
+
+.progress {
+  margin: 0.25rem 0 0.25rem;
+}
+
+.progress-segments {
+  display: flex;
+  gap: 6px;
+}
+
+.progress-segments span {
+  flex: 1;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--line);
+  transition: background-color 200ms ease;
+}
+
+.progress-segments span.done {
+  background: var(--brand);
+}
+
+.progress-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.45rem 0 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--brand-dark);
+}
+
+.step-heading {
+  font-size: 1.55rem;
+  line-height: 1.2;
+  margin: 0.35rem 0 0.75rem;
+  text-wrap: balance;
+}
+
+.step-heading:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.step-body {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1rem 1rem 0.25rem;
+  margin: 0;
+}
+
+.step-body > .hint:first-child {
+  margin-bottom: 1rem;
+}
+
+/* Radio cards: the whole card is the tap target; the chosen one gets a border, ring and filled dot */
+.choices {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0.25rem 0 0.5rem;
+}
+
+.choice {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  min-height: 64px;
+  margin: 0;
+  padding: 0.7rem 0.9rem;
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  background: var(--card);
+  cursor: pointer;
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+
+.choice:hover {
+  border-color: var(--brand);
+}
+
+.choice input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+}
+
+.choice-dot {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid var(--field-line);
+  background: #fff;
+  transition: border-width 150ms ease, border-color 150ms ease;
+}
+
+.choice-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.choice-label {
+  font-weight: 700;
+  font-size: 1.05rem;
+  line-height: 1.3;
+}
+
+.choice-hint {
+  color: var(--muted);
+  font-size: 0.92rem;
+  font-weight: 400;
+  line-height: 1.35;
+}
+
+.choice:has(input:checked) {
+  border-color: var(--brand);
+  background: var(--brand-tint);
+  box-shadow: inset 0 0 0 1px var(--brand);
+}
+
+.choice:has(input:checked) .choice-dot {
+  border-color: var(--brand);
+  background: var(--brand);
+  box-shadow: inset 0 0 0 4px #fff; /* a filled dot with a white ring, like a standard radio button */
+}
+
+.choice:has(input:focus-visible) {
+  outline: 3px solid var(--ink);
+  box-shadow: 0 0 0 6px var(--focus);
+}
+
+.choice:has(input[aria-invalid="true"]) {
+  border-color: var(--danger);
+}
+
+/* Back / Next side by side in the bar that stays at the bottom */
+.step-nav {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 0.6rem;
+}
+
+.step-nav.single {
+  grid-template-columns: 1fr;
+}
+
+.step-nav button {
+  width: 100%;
+  min-height: 52px;
+  font-size: 1.05rem;
+}
+
+/* "Check and send": every answer with a way back to change it */
+.review {
+  margin: 0 0 1rem;
+}
+
+.review > div {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: 0.75rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.review > div:first-child {
+  padding-top: 0;
+}
+
+.review dt {
+  grid-column: 1;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.review dd {
+  grid-column: 1;
+  margin: 0.1rem 0 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.review dd em {
+  color: var(--danger);
+  font-style: normal;
+}
+
+.review-text {
+  white-space: pre-wrap;
+  font-weight: 400 !important;
+}
+
+.review-sub {
+  display: block;
+  font-weight: 400;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.review .change {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: center;
+}
+
+.wizard .privacy {
+  margin: 0 0 0.75rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress-segments span,
+  .choice,
+  .choice-dot {
+    transition: none;
+  }
+}
