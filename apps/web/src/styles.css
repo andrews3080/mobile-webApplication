@@ -1074,3 +1074,28 @@ a {
     transition: none;
   }
 }
+
+/* ---------- Logo ---------- */
+
+/* The mark sits on a small cream badge so the dark green eye stays visible on the green bar */
+.logo-badge {
+  display: inline-grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 10px;
+  background: #f5f1e6;
+  flex: none;
+}
+
+.logo-mark {
+  display: block;
+}
+
+/* Close to the logo's slab-serif wordmark using fonts already on the phone (no download) */
+.brand {
+  font-family: "Rockwell", "Roboto Slab", "Georgia", "Times New Roman", serif;
+  font-weight: 800;
+  font-size: 1.2rem;
+  letter-spacing: 0.01em;
+}

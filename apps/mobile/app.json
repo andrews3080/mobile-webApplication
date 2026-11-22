@@ -9,7 +9,11 @@
     "backgroundColor": "#f2f5f3",
     "android": {
       "package": "gh.edu.ug.asaaseani.officer",
-      "softwareKeyboardLayoutMode": "pan"
+      "softwareKeyboardLayoutMode": "pan",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#f5f1e6"
+      }
     },
     "ios": {
       "bundleIdentifier": "gh.edu.ug.asaaseani.officer"
@@ -17,6 +21,10 @@
     "plugins": [
       "expo-secure-store",
       "expo-status-bar"
-    ]
+    ],
+    "icon": "./assets/icon.png",
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
   }
 }

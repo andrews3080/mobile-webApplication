@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 72" role="img" aria-label="Asaase Ani">
+  <!-- The Asaase Ani mark: an eye watching over the land, with a location pin in the pupil.
+       Redrawn as SVG from docs/brand/asaase-ani-logo.png. Colours: green #1f4d3a, gold #e0a526, rings #6a9a78. -->
+  <defs>
+    <clipPath id="eye">
+      <path d="M6 36 Q60 -17 114 36 Q60 89 6 36 Z" />
+    </clipPath>
+  </defs>
+  <path d="M6 36 Q60 -17 114 36 Q60 89 6 36 Z" fill="#ffffff" />
+  <g clip-path="url(#eye)">
+    <circle cx="60" cy="36" r="26.5" fill="#1f4d3a" />
+    <g fill="none" stroke="#6a9a78" stroke-width="2">
+      <ellipse cx="60" cy="36" rx="22" ry="17.5" />
+      <ellipse cx="60" cy="36" rx="16.5" ry="12.5" />
+      <ellipse cx="60" cy="36" rx="11" ry="8" />
+    </g>
+  </g>
+  <path d="M6 36 Q60 -17 114 36 Q60 89 6 36 Z" fill="none" stroke="#1f4d3a" stroke-width="5" stroke-linejoin="round" />
+  <path d="M60 49.5 C56.5 44 51.5 38 51.5 31.5 A8.5 8.5 0 1 1 68.5 31.5 C68.5 38 63.5 44 60 49.5 Z" fill="#e0a526" />
+  <circle cx="60" cy="30.5" r="3.2" fill="#1f4d3a" />
+</svg>

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Asaase Ani">
+  <!-- Small-size icon (browser tab, phone home screen): the iris and pin from the mark, filling the square,
+       because the full wide eye becomes unreadable at 16-32 px. -->
+  <rect width="120" height="120" rx="26" fill="#f5f1e6" />
+  <g transform="translate(60 60) scale(1.95) translate(-60 -36)">
+    <circle cx="60" cy="36" r="26.5" fill="#1f4d3a" />
+    <g fill="none" stroke="#6a9a78" stroke-width="2">
+      <ellipse cx="60" cy="36" rx="22" ry="17.5" />
+      <ellipse cx="60" cy="36" rx="16.5" ry="12.5" />
+      <ellipse cx="60" cy="36" rx="11" ry="8" />
+    </g>
+    <path d="M60 49.5 C56.5 44 51.5 38 51.5 31.5 A8.5 8.5 0 1 1 68.5 31.5 C68.5 38 63.5 44 60 49.5 Z" fill="#e0a526" />
+    <circle cx="60" cy="30.5" r="3.2" fill="#1f4d3a" />
+  </g>
+</svg>

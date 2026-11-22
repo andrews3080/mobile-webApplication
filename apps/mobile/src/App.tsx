@@ -1,7 +1,7 @@
 import { HttpOfficerApi } from "@asaase-ani/shared";
 import { StatusBar } from "expo-status-bar";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { BackHandler, Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { BackHandler, Image, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { API_URL } from "./config";
 import { LoginScreen } from "./screens/LoginScreen";
@@ -77,6 +77,10 @@ function OfficerApp() {
   return (
     <SafeAreaView style={styles.root} edges={["top", "left", "right", "bottom"]}>
       <View style={styles.bar}>
+        {/* The logo's eye on a cream badge, so the dark green stays visible on the green bar */}
+        <View style={styles.logoBadge}>
+          <Image source={require("../assets/logo-mark.png")} style={styles.logo} resizeMode="contain" accessibilityIgnoresInvertColors />
+        </View>
         <Text style={styles.brand}>Asaase Ani</Text>
         <Text style={styles.role}>Officers</Text>
         {token ? (
@@ -93,7 +97,9 @@ function OfficerApp() {
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.brand },
   bar: { flexDirection: "row", alignItems: "center", paddingHorizontal: 16, paddingVertical: 10, gap: 8 },
-  brand: { color: colors.brandInk, fontSize: 19, fontWeight: "800" },
+  brand: { color: colors.brandInk, fontSize: 19, fontWeight: "800", fontFamily: Platform.OS === "android" ? "serif" : "Georgia" },
+  logoBadge: { width: 44, height: 44, borderRadius: 10, backgroundColor: "#f5f1e6", alignItems: "center", justifyContent: "center" },
+  logo: { width: 38, height: 23 },
   role: {
     color: colors.brandDark,
     backgroundColor: colors.brandInk,

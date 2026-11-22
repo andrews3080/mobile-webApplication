@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { TrackApi } from "../core/ports";
-import { Icon } from "./Icon";
+import { LogoMark } from "./Logo";
 import { ReportPage } from "./ReportPage";
 import type { ReportServices } from "./services";
 import { TrackPage } from "./TrackPage";
@@ -56,7 +56,9 @@ export function App({ services, autosaveMs }: { services: AppServices; autosaveM
       <header className="topbar">
         <div className="topbar-inner">
           <a href={HREF.report} className="brand-link">
-            <Icon name="logo" size={28} />
+            <span className="logo-badge">
+              <LogoMark width={40} />
+            </span>
             <span className="brand">Asaase Ani</span>
           </a>
           <nav aria-label="Main">
