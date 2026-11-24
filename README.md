@@ -23,6 +23,7 @@ apps/api         Express + TypeScript API, PostgreSQL (or in-memory for quick ru
   src/infrastructure  PostgreSQL, JWT, password hashing, photo storage, metadata stripping
   src/seed         200 labelled synthetic sample reports
   migrations       SQL migrations, applied in name order on start-up and by `npm run migrate`
+                   (tables, relationships and privacy rules: docs/database-schema.md)
 apps/web         Reporter website: React 19 + plain CSS (no Tailwind), Vite
 apps/mobile      Officer/admin app: Expo SDK 58, React Native 0.88
 packages/shared  Code both clients use: API clients, review rules, status wording,
@@ -148,4 +149,5 @@ Left, from the proposal (sections 3.2 and 3.3, Table 2):
   role and client table (Table 2) decides who gets what.
 - Quality requirements (proposal section 5): usability, performance on 3G, no lost or duplicate reports,
   access control and privacy, data use (first visit 300 KB or less).
+- Database tables, relationships and who may see what: [`docs/database-schema.md`](docs/database-schema.md).
 - Design decisions and the brand palette: `.21st/design.json` and `docs/brand/`.
